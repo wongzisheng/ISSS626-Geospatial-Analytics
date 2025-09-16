@@ -2,10 +2,4 @@
 title: "ISSS626 Geospatial Analytics"
 ---
 
-This is a Quarto website.
-
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
-
-```{r}
-1 + 1
-```
+Welcome to **ISSS628 Geospatial Analytics** homepage. In this website you will find my coursework prepared for this course.
