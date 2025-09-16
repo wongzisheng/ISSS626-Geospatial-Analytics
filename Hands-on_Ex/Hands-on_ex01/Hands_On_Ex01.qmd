@@ -128,13 +128,7 @@ In geospatial analytics, it is very common for us to transform the original data
 
 Let us take preschool simple feature data frame as an example. The print below reveals that it is in wgs84 coordinate system.
 
-Geometry set for 2290 features
-Geometry type: POINT
-Dimension: XYZ
-Bounding box: xmin: 103.6878 ymin: 1.247759 xmax: 103.9897 ymax: 1.462134
-z_range: zmin: 0 zmax: 0
-Geodetic CRS: WGS 84
-First 5 geometries:
+Geometry set for 2290 features Geometry type: POINT Dimension: XYZ Bounding box: xmin: 103.6878 ymin: 1.247759 xmax: 103.9897 ymax: 1.462134 z_range: zmin: 0 zmax: 0 Geodetic CRS: WGS 84 First 5 geometries:
 
 This is a scenario that *st_set_crs()* is not appropriate and *st_transform()* of sf package should be used. This is because we need to reproject `preschool` from one coordinate system to another coordinate system mathemetically.
 
