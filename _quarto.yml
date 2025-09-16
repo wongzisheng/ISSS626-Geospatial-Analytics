@@ -8,16 +8,22 @@ website:
     - text: "Hands-on Exercise"
       menu:
       - text: "Hands-on Exercise1"
-        href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html"
+        href: "./Hands-on_Ex/Hands-on_Ex01/Hands_On_Ex01.qmd"
       - text: "Hands-on Exercise2"
-        href: "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html"
+        href: "./Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.qmd"
       - text: "Hands-on Exercise3"
-        href: "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html"
+        href: "./Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.qmd"
+      - text: "Hands-on Exercise4"
+        href: "./Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.qmd"
+        
     - text: "In-class Exercise"
+      menu:
+      - text: "In-class Exercise 3a"
+        href: "./In-Class Exercise/In-Class Exercise 3/In_Class_Ex03a.qmd"
     - text: "Take-home exercise"
       menu:
       - text: "Take-Home Exercise1"
-        href: "Assignment1/Take-Home_Exercise_1.html"
+        href: "Assignment1/Take-Home_Exercise_1.qmd"
 
     right:
       - href: index.qmd
@@ -26,7 +32,7 @@ website:
 
 format:
   html:
-    theme:
+    theme: quartz
       - flatly
       - brand
     css: styles.css
