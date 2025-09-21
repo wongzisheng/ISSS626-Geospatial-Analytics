@@ -1,0 +1,15 @@
+{
+  "hash": "6473141ce48efc4b668e2c739bc58b4f",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"In-class Exercise 4: Interactive K-function\"\nauthor: \"Wong Zi Sheng\"\ndate: \"September 20, 2025\"\ndate-modified: \"last-modified\"\nexecute: \n  eval: true\n  echo: true\n  warning: false\n  freeze: true\n---\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(sf, ggstatsplot, tmap, tidyverse, knitr, GWmodel)\n```\n:::\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\n#hunan_sf <- left_join(hunan_sf, hunan2012)\n```\n:::\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\n#hunan_sp <- hunan_sf %>%\n  #as_Spatial()\n```\n:::\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

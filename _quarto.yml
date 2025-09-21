@@ -2,7 +2,7 @@ project:
   type: website
 
 website:
-  title: "ISSS626-wp"
+  title: "ISSS626"
   navbar:
     left: 
     - text: "Hands-on Exercise"
@@ -10,11 +10,11 @@ website:
       - text: "Hands-on Exercise1"
         href: "./Hands-on_Ex/Hands-on_Ex01/Hands_On_Ex01.html"
       - text: "Hands-on Exercise2"
-        href: "./Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html"
+        href: "./Hands-on_Ex/Hands-on_Ex02/Hands_On_Ex02.html"
       - text: "Hands-on Exercise3"
-        href: "./Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html"
+        href: "./Hands-on_Ex/Hands-on_Ex03/Hands_On_Ex03.html"
       - text: "Hands-on Exercise4"
-        href: "./Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.html"
+        href: "./Hands-on_Ex/Hands-on_Ex04/Hands_On_Ex04.html"
         
     - text: "In-class Exercise"
       menu:
