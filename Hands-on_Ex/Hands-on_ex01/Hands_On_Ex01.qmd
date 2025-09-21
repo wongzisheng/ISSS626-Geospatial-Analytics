@@ -238,8 +238,13 @@ mpsz_selected <- mpsz %>%
 Next, `st_intersection()` of **sf** package will be used to clip cycling buffers within Tampines West planning subzone.
 
 ```{r}
-#buffer_cycling_selected <- st_intersection(
-#  buffer_cycling, mpsz_selected)
+buffer_cycling <- st_set_crs(buffer_cycling, 3414) 
+st_crs(buffer_cycling)
+```
+
+```{r}
+buffer_cycling_selected <- st_intersection(
+  buffer_cycling, mpsz_selected)
 ```
 
 ### 1.7.3 **Use case 2: To determine the number of pre-schools by planning subzone**

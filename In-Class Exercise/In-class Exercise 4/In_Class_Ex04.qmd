@@ -1,7 +1,7 @@
 ---
-title: "In-class Exercise 3: Interactive K-function"
+title: "In-class Exercise 4: Interactive K-function"
 author: "Wong Zi Sheng"
-date: "September 12, 2025"
+date: "September 20, 2025"
 date-modified: "last-modified"
 execute: 
   eval: true
@@ -11,18 +11,16 @@ execute:
 ---
 
 ```{r}
-pacman::p_load(sf, terra, spatstat, 
-               tmap, rvest, tidyverse,
-               ggthemes, plotly)
+pacman::p_load(sf, ggstatsplot, tmap, tidyverse, knitr, GWmodel)
 ```
 
 ```{r}
-#| echo: false
-mpsz_cl <- read_rds("data/rds/mpsz_cl.rds")
+hunan_sf <- left_join(hunan_sf, hunan2012)
 ```
 
 ```{r}
-childcare_sf <- read_rds("data/rds/childcare_sf.rds") 
+hunan_sp <- hunan_sf %>%
+  as_Spatial()
 
 ```
 

@@ -10,20 +10,20 @@ website:
       - text: "Hands-on Exercise1"
         href: "./Hands-on_Ex/Hands-on_Ex01/Hands_On_Ex01.html"
       - text: "Hands-on Exercise2"
-        href: "./Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.qmd"
+        href: "./Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html"
       - text: "Hands-on Exercise3"
-        href: "./Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.qmd"
+        href: "./Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html"
       - text: "Hands-on Exercise4"
-        href: "./Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.qmd"
+        href: "./Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.html"
         
     - text: "In-class Exercise"
       menu:
       - text: "In-class Exercise 3a"
-        href: "./In-Class Exercise/In-Class Exercise 3/In_Class_Ex03a.qmd"
+        href: "./In-Class Exercise/In-Class Exercise 3/In_Class_Ex03a.html"
     - text: "Take-home exercise"
       menu:
       - text: "Take-Home Exercise1"
-        href: "Assignment1/Take-Home_Exercise_1.qmd"
+        href: "Assignment1/Take-Home_Exercise_1.html"
 
     right:
       - href: index.qmd
