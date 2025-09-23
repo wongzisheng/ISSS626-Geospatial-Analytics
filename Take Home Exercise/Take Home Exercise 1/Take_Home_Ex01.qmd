@@ -244,6 +244,8 @@ bw <- bw.diggle(rest_biz_56111_ppp_km)
 bw
 ```
 
+This kernel density estimation (KDE) map displays the spatial intensity of restaurant (SSIC 56111) registrations in Singapore between January 2024 and June 2025. Using a Gaussian kernel with bandwidth selected via Diggle’s method (σ = 0.007 km), the analysis smooths the point distribution to highlight areas of higher concentration. The resulting density surface reveals clear hotspots in the central and downtown planning areas, particularly the CBD and surrounding commercial districts, where density values exceed 250 establishments per km². Peripheral residential and industrial zones exhibit much lower intensities, reflecting limited restaurant formation in those areas. The KDE thus suggests a strong central clustering of new restaurants, consistent with agglomeration economies and accessibility to consumer demand. As KDE is a smoothing technique, the visualization emphasizes general spatial patterns over exact point counts, making it well-suited for urban land-use and retail planning.
+
 ### 2nd Order Spatial Point Pattern Analysis
 
 #### Using K-Function
@@ -259,9 +261,9 @@ plot(K_rest, . -r ~ r, ylab= "K(d)-r", xlab = "d(m)")
 
 To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
 
-Ho = The distribution of childcare services at Choa Chu Kang are randomly distributed.
+Ho = The distribution of restaurants in Singapore are randomly distributed.
 
-H1= The distribution of childcare services at Choa Chu Kang are not randomly distributed.
+H1= The distribution of restaurants in Singapore are not randomly distributed.
 
 The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.
 
@@ -287,9 +289,9 @@ plot(L_rest, . -r ~ r,
 
 To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
 
-Ho = The distribution of childcare services at Choa Chu Kang are randomly distributed.
+Ho = The distribution of restaurants in Singapore are randomly distributed.
 
-H1= The distribution of childcare services at Choa Chu Kang are not randomly distributed.
+H1= The distribution of restaurants in Singapore are not randomly distributed.
 
 The null hypothesis will be rejected if p-value if smaller than alpha value of 0.001.
 
@@ -603,9 +605,9 @@ plot(K_it, . -r ~ r, ylab= "K(d)-r", xlab = "d(m)")
 
 To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
 
-Ho = The distribution of childcare services at Choa Chu Kang are randomly distributed.
+Ho = The distribution of IT consultancy services in Singapore are randomly distributed.
 
-H1= The distribution of childcare services at Choa Chu Kang are not randomly distributed.
+H1= The distribution of IT consultancy services in Singapore are not randomly distributed.
 
 The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.
 
@@ -631,9 +633,9 @@ plot(L_it, . -r ~ r,
 
 To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
 
-Ho = The distribution of childcare services at Choa Chu Kang are randomly distributed.
+Ho = The distribution of IT consultancy services in Singapore are randomly distributed.
 
-H1= The distribution of childcare services at Choa Chu Kang are not randomly distributed.
+H1= The distribution of IT consultancy services in Singapore are not randomly distributed.
 
 The null hypothesis will be rejected if p-value if smaller than alpha value of 0.001.
 
@@ -947,9 +949,9 @@ plot(K_ret, . -r ~ r, ylab= "K(d)-r", xlab = "d(m)")
 
 To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
 
-Ho = The distribution of childcare services at Choa Chu Kang are randomly distributed.
+Ho = The distribution of clothing retailers in SIngapore are randomly distributed.
 
-H1= The distribution of childcare services at Choa Chu Kang are not randomly distributed.
+H1= The distribution of clothing retailers in SIngapore are not randomly distributed.
 
 The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.
 
@@ -975,9 +977,9 @@ plot(L_ret, . -r ~ r,
 
 To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
 
-Ho = The distribution of childcare services at Choa Chu Kang are randomly distributed.
+Ho = The distribution of clothing retailers in SIngapore are randomly distributed.
 
-H1= The distribution of childcare services at Choa Chu Kang are not randomly distributed.
+H1= The distribution of clothing retailers in SIngapore are not randomly distributed.
 
 The null hypothesis will be rejected if p-value if smaller than alpha value of 0.001.
 
