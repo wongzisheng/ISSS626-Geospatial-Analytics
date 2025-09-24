@@ -275,6 +275,8 @@ K_rest.csr <- envelope(rest_biz_56111_ppp, Kest, nsim = 99, rank = 1, glocal=TRU
 plot(K_rest.csr, . - r ~ r, xlab="d", ylab="K(d)-r")
 ```
 
+Ripley’s K-function was applied with edge correction and plotted in the centered form (K(d) – CSR). The results reveal that at short distances (\<500m), the observed function lies above the CSR expectation, indicating significant clustering of restaurants. At larger distances, the function gradually approaches CSR, suggesting that clustering effects are primarily localised. When compared against CSR simulation envelopes, the observed curve exceeded the upper bounds at short ranges, confirming that clustering is statistically significant and not due to chance. This pattern aligns with the tendency for restaurants to co-locate in food districts, malls, and transport hubs.The second-order analysis reinforces the KDE findings, showing that spatial clustering of restaurants occurs mainly at neighbourhood or precinct level scales rather than city-wide.
+
 #### Using L-Function
 
 Computing L Function estimate
@@ -302,6 +304,8 @@ L_rest.csr <- envelope(rest_biz_56111_ppp, Lest, nsim = 99, rank = 1, glocal=TRU
 ```{r}
 plot(L_rest.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
 ```
+
+At short distances (\<500m), the observed curve lies well above the CSR envelope, confirming statistically significant clustering of restaurants at the neighbourhood scale. At intermediate distances (500m–1km), the curve gradually declines toward the CSR expectation, suggesting that clustering effects are strongest only at localised ranges. Beyond \~1km, the observed curve generally falls within the CSR envelope, implying no significant departure from randomness at broader citywide scales. The L-function strengthens the conclusion from the K-function and KDE results — restaurant establishments in Singapore exhibit **non-random clustering** at short ranges, consistent with retail agglomeration in malls, food clusters, and transit-adjacent hubs.
 
 ### Spatio-Temporal Point Patterns Analysis
 
@@ -409,6 +413,14 @@ rest_stik <- STIKhat(rest_stpp)
 ```{r}
 plotK(rest_stik)
 ```
+
+From the spatio-temporal analysis thus far, the STPP visualization, together with cumulative growth trends, confirms that restaurants in Singapore exhibit persistent, wave-like clustering across both geography and time, reflecting underlying economic and urban dynamics.
+
+The point cloud shows heavy concentrations of restaurants within the central and commercial zones, consistent with earlier KDE findings, while the vertical axis (time) illustrates that new restaurants continue to emerge in successive waves, often reinforcing existing hotspots rather than dispersing to new locations.
+
+Some districts (e.g., CBD, Orchard) consistently attract establishments across multiple time points, highlighting temporal persistence of clustering. When viewed along the time axis, the number of establishments is seen to rise cumulatively over the study period. Growth is unlikely to be uniform as there are periods of rapid expansion, followed by slower phases, suggesting the influence of broader economic or policy cycles.
+
+Unlike the KDE, which smooths densities, the STPP visualization reveals the raw space–time dynamics of restaurant openings. It demonstrates that clustering is not only spatial but also temporally structured, with openings often concentrated in short bursts at specific hotspots. The cumulative increase over time underscores the steady expansion of the F&B sector, while temporal fluctuations suggest the role of market saturation, urban redevelopment, and macroeconomic conditions.
 
 ## 2. IT Consultancy Business
 
@@ -647,6 +659,8 @@ L_it.csr <- envelope(IT_biz_62021_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
 plot(L_it.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
 ```
 
+Ripley’s K and L‐function for IT consultancy show clustering at short to moderate distances (approx. 500-1000 m), but the deviation from CSR (Complete Spatial Randomness) is smaller in magnitude than for restaurants. The observed L(d)−d curve breaches the CSR envelope for small distances, implying statistically significant clustering, but the envelope return to near zero at wider spatial scales suggests that clustering does not persist at larger scales. The pair correlation function, if calculated, likely shows peaks around those same short distances.
+
 ### Spatio-Temporal Point Patterns Analysis
 
 Overall Plot:
@@ -753,6 +767,8 @@ it_stik <- STIKhat(it_stpp)
 ```{r}
 plotK(it_stik)
 ```
+
+The spatio-temporal analysis reveals that over time, IT consultancy business registrations show a gradual accumulation, with no dramatic surges. New registrations tend to follow earlier hotspots rather than creating many new clusters. Temporal slices show increases but not large, abrupt jumps. Growth is more steady. Cumulative counts reflect this smoother growth.
 
 ## 3. Clothing Retail Business
 
@@ -934,6 +950,8 @@ bw <- bw.diggle(ret_biz_47711_ppp_km)
 bw
 ```
 
+The spatial KDE for clothing retail shows a pattern distinct from IT consultancy. Sharper clusters around retail hubs, shopping centres, and regional town centres. High density in areas such as major malls and high-street shopping districts; moderate density along busy arterial roads. Lower density in purely residential or industrial zones.
+
 ### 2nd Order Spatial Point Pattern Analysis
 
 #### Using K-Function
@@ -990,6 +1008,8 @@ L_ret.csr <- envelope(ret_biz_47711_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
 ```{r}
 plot(L_ret.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
 ```
+
+The second‐order analysis indicates stronger clustering at short distances (likely under 500-700 m). The L(d)−d curve for clothing retail crosses the CSR envelope more deeply at small spatial scales than IT consultancy, meaning clustering is more pronounced. Beyond moderate distances, the curve tends to return toward CSR, indicating that clustering does not extend far beyond retail precinct boundaries. Pair correlation function likely shows significant peaks at small scale, indicating that stores are often very near each other in retail precincts.
 
 ### Spatio-Temporal Point Patterns Analysis
 
@@ -1097,3 +1117,5 @@ ret_stik <- STIKhat(ret_stpp)
 ```{r}
 plotK(ret_stik)
 ```
+
+Clothing retail shows more temporal bursts compared to IT consultancy. Certain quarters or months have visible upticks in registrations, possibly linked to seasonal demand or retail promotions / lease-cycle effects. New clusters tend to emerge near existing retail nodes rather than remote expansion. Cumulative registration counts for clothing retail rise in sharper steps during certain time periods, implying periods of accelerated growth.
