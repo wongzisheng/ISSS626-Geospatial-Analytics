@@ -4,6 +4,4 @@ title: "About"
 
 About this site
 
-```{r}
-1 + 1
-```
+This is the work Geospatial Analytics submission of Wong Zi Sheng.
