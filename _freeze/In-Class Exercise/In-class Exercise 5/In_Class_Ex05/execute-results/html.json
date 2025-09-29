@@ -1,0 +1,15 @@
+{
+  "hash": "5ca1c718c6bd1736b9faf95bca11cc24",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"In-class Exercise 3: Interactive K-function\"\nauthor: \"Wong Zi Sheng\"\ndate: \"September 12, 2025\"\ndate-modified: \"last-modified\"\nexecute: \n  eval: true\n  echo: true\n  warning: false\n  freeze: true\n---\n\n\n::: {.cell}\n\n```{.r .cell-code}\n#hunan_\n```\n:::\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
