@@ -1,0 +1,117 @@
+---
+title: "In-class Exercise 6"
+author: "Wong Zi Sheng"
+date: "Octover 4, 2025"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+```{r}
+pacman::p_load(tidyverse, sf, sfdep, tmap, knitr)
+```
+
+```{r}
+setwd('/Users/zishengwong/R Coding/ISSS626 Geospatial Analytics/In-Class Exercise/In-class Exercise 6')
+```
+
+```{r}
+mpsz = read_rds("data/rds/mpsz_cl.rds")
+```
+
+```{r}
+BusStop = st_read(dsn = "data/LTADataMall/",
+                  layer = "BusStop") 
+# %>%
+ # st_transform(crs = 3414)
+```
+
+```{r}
+odbus <- read_csv("data/LTADataMall/origin_destination_bus_202508.csv")
+```
+
+```{r}
+tm_shape(mpsz) +
+  tm_polygons() +
+tm_shape(BusStop) +
+  tm_dots()
+```
+
+Extracting bus stops within SIngapore only
+
+Need to convert EPSG code first
+
+```{r}
+BusStop <- st_transform(BusStop, crs = 3414)
+BusStop_in_SG <- st_join(
+  BusStop, mpsz, 
+  join = st_within,
+  left = FALSE
+)
+```
+
+```{r}
+tm_shape(mpsz) +
+  tm_polygons() +
+tm_shape(BusStop_in_SG) +
+  tm_dots()
+```
+
+Deriving Analytical Hexagon
+
+```{r}
+hexagon <- st_make_grid(mpsz,
+                        cellsize = 700,
+                        what = "polygon",
+                        square = FALSE) %>%
+  st_sf()
+```
+
+FIltering hexagons with bus stops
+
+```{r}
+hexagon$n_collisions = 
+  lengths(st_intersects(
+    hexagon, BusStop_in_SG
+  ))
+
+hexagon <- filter(hexagon, n_collisions >0)
+```
+
+```{r}
+hexagon <- hexagon %>%
+  select(, n_collisions)
+
+hexagon$HEX_ID <- sprintf(
+  "H%04d", seq_len(nrow(hexagon))) %>%
+  as.factor()
+
+kable(head(hexagon))
+```
+
+```{r}
+trips <- odbus %>%
+  select(c(ORIGIN_PT_CODE, DAY_TYPE, TIME_PER_HOUR, TOTAL_TRIPS)) %>%
+  rename(BUS_STOP_N = ORIGIN_PT_CODE) %>%
+  rename(HOUR_OF_DAY = TIME_PER_HOUR) %>%
+  rename(TRIPS = TOTAL_TRIPS)
+trips$BUS_STOP_N <- as.factor(trips$BUS_STOP_N)
+  kable(head(trips))
+```
+
+```{r}
+bs_hex <- st_intersection(
+  BusStop, hexagon) %>%
+  st_drop_geometry() %>%
+  select(c(BUS_STOP_N, HEX_ID)
+)
+kable(head(bs_hex))
+```
+
+```{r}
+#trips <- inner_join(trips, bs_hex, relationship = "many-to-many")
+#kable(head(trips))
+```
