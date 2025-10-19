@@ -1,10 +1,5 @@
 ---
 title: "ISSS626 Hands On Exercise 7"
-execute: 
-  eval: true
-  echo: true
-  warning: false
-  freeze: true
 ---
 
 # **Calibrating Hedonic Pricing Model for Private Highrise Property with GWR Method**

@@ -3,11 +3,6 @@ title: "In-class Exercise 7"
 author: "Wong Zi Sheng"
 date: "Octover 18, 2025"
 date-modified: "last-modified"
-execute: 
-  eval: true
-  echo: true
-  warning: false
-  freeze: true
 ---
 
 ```{}
