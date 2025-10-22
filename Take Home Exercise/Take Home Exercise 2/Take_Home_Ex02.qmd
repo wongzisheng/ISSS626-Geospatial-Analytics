@@ -1,0 +1,1006 @@
+---
+title: "Take_Home_Ex02"
+---
+
+# Setting the Scene
+
+Urban mobility refers to the movement of people and goods within and between cities, spanning all modes of transport such as walking, cycling, public transit, private vehicles, and freight. Driven by factors like population growth and climate change, urban mobility planning aims to create smart, efficient, and sustainable networks that reduce congestion and emissions while enhancing quality of life and economic vitality. Key developments include the rise of shared mobility services, autonomous vehicles, and integrated smart systems that prioritize user experience, safety, and inclusivity in urban environments.
+
+As city-wide urban infrastructures such as buses, taxis, mass rapid transit, public utilities and roads become digital, the datasets obtained can be used as a framework for tracking movement patterns through space and time. This is especially true with the widespread deployment of pervasive computing technologies such as smart cards, GPS, and RFID in vehicles. For example, routes and ridership data were collected with the use of smart cards and Global Positioning System (GPS) devices available on the public buses. These large-scale movement datasets often contain patterns that reveal important characteristics of urban mobility. Identifying and analyzing such patterns can deepen our understanding of human mobility, supporting better urban management. For both public and private transport providers, these insights enable more informed decisions and improved service planning.
+
+In real-world practices, the use of these massive locational aware data to gain better urban mobility patterns and trends, however, tend to be confined to simple tracking and mapping with GIS applications. This is mainly because conventional GIS tools lack robust geospatial statistics capabilities for analyzing and modeling spatial and spatio-temporal data.
+
+# Objectives
+
+Local Measures of Spatial Autocorrelation (LMSA) are geospatial statisticals for identifying specific locations within a map that show significant spatial clustering of similar or dissimilar values. Unlike global measures that summarize the entire map, LMSA tests each location individually to determine whether its value, in relation to its neighbors, is more clustered or dispersed than expected by chance. This helps to find hotspots (high values clustered together), coldspots (low values clustered together), and outliers (high values surrounded by low values, or vice versa) by calculating a value for each individual location. The popular LMSA statistics include Local Moran’s I, Local Geary’s C, and the Getis-Ord Gi\*.
+
+Emerging Hot Spot Analysis (EHSA) is a spatio-temporal technique that complements LMSA when working with spatio-temporal data. It uses a space-time cube to identify and categorize clusters of high or low values (hot and cold spots) over time. By combining local Gi\* statistics to find clusters with the Mann-Kendall test to detect trends, EHSA categorizes locations into trends such as “new,” “intensifying,” “diminishing,” or “sporadic” hot and cold spots, revealing how spatial patterns are evolving.
+
+Both LMSA and EHSA hold tremendous potential to address complex urban mobility problems facing society. Using *Passenger Volume by Origin Destination Bus Stops* provided by [LTA DataMall](https://datamall.lta.gov.sg/content/datamall/en.html), in this exercise, you will explore two important geospatial statistical approaches for analysing urban mobility:
+
+### **Local Measures of Spatial Autocorrelation (LMSA)**
+
+-   Learn how to apply Local Moran’s I, Local Geary’s C, and the Getis-Ord Gi\* statistic.
+
+-   Understand how LMSA differs from global measures by testing each location individually, revealing where values cluster together or stand apart.
+
+-   Identify hotspots (areas of high values clustered together), cold spots (areas of low values clustered together), and spatial outliers (unusual locations where high values are surrounded by low values, or vice versa).
+
+### **Emerging Hot Spot Analysis (EHSA)**
+
+-   Learn how EHSA complements LMSA by adding a temporal dimension.
+
+-   Use the space-time cube framework to track how hot and cold spots evolve over time.
+
+-   Apply EHSA categories (e.g., “new,” “intensifying,” “diminishing,” “sporadic”) to understand whether travel patterns are strengthening, weakening, or shifting.
+
+In conclusion, the objectives of this hands-on exercises are:
+
+-   To discover how bus mobility patterns differ across neighborhoods, providing deeper insights than global summary measures.
+
+-   To detect emerging patterns in urban mobility, helping planners anticipate commuting demands and design more responsive bus services and policies.
+
+# Task
+
+-   Derive an analytical hexagon data of 375m (this distance is the perpendicular distance between the centre of the hexagon and its edges) to represent the [traffic analysis zone (TAZ)](https://tmg.utoronto.ca/files/Reports/Traffic-Zone-Guidance_March-2021_Final.pdf).
+
+-   With reference to the time intervals provided in the table below, compute the passenger trips generated by origin at the hexagon level.
+
+-   Display the geographical distribution of the passenger trips by using appropriate geovisualisation methods,
+
+-   Describe the spatial patterns revealed by the geovisualisation (not more than 200 words per visual).
+
+### **Local Measures of Spatial Association (LMSA) Analysis**
+
+-   Compute LMSA statistic of the passengers trips generate by origin at hexagon level.
+
+-   Display the LMSA maps of the passengers trips generate by origin at hexagon level. The maps should only display the significant (i.e. p-value \< 0.05)
+
+-   With reference to the analysis results, draw statistical conclusions (not more than 200 words per visual).
+
+### **Emerging Hot Spot Analysis(EHSA)**
+
+With reference to the passenger trips by origin at the hexagon level for the three time intervals given above:
+
+-   Perform Mann-Kendall Test by using the spatio-temporal local Gi\* values,
+
+-   Prepared EHSA maps of the Gi\* values of the passenger trips by origin at the hexagon level. The maps should only display the significant (i.e. p-value \< 0.05).
+
+-   With reference to the EHSA maps and data visualisation prepared, describe the spatial patterns reveled. (not more than 250 words per cluster).
+
+```{r}
+setwd("/Users/zishengwong/R Coding/ISSS626 Geospatial Analytics/Take Home Exercise/Take Home Exercise 2")
+```
+
+# Data Preprocessing
+
+```{r}
+pacman::p_load(tidyverse, sf, sfdep, tmap, knitr)
+```
+
+```{r}
+mpsz = read_rds("data/rds/mpsz_cl.rds")
+```
+
+```{r}
+BusStop = st_read(dsn = "data/LTADataMall/", 
+                  layer = "BusStop") %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+odbus <- read_csv("data/LTADataMall/origin_destination_bus_202508.csv")
+```
+
+```{r}
+BusStop_in_SG <- st_join(
+  BusStop, mpsz, 
+  join = st_within, 
+  left = FALSE)
+```
+
+```{r}
+tm_shape(mpsz) +
+  tm_polygons() +
+tm_shape(BusStop) +
+  tm_dots()
+```
+
+Creating Analytical Hexagon
+
+```{r}
+hexagon <- st_make_grid(mpsz, 
+                        cellsize = 700,
+                        what = "polygon",
+                        square = FALSE) %>%
+  st_sf()
+```
+
+```{r}
+hexagon$busstop_count =
+  lengths(st_intersects(
+    hexagon, BusStop_in_SG))
+
+hexagon <- filter(
+  hexagon, busstop_count > 0)
+```
+
+Checking hexagon layer
+
+```{r}
+tm_shape(mpsz) +
+  tm_polygons() +
+tm_shape(hexagon) +
+  tm_dots()
+```
+
+Assigning ids to each hexagon
+
+```{r}
+hexagon <- hexagon %>% 
+  select(, -busstop_count)
+
+hexagon$HEX_ID <- sprintf(
+  "H%04d", seq_len(
+    nrow(hexagon))) %>% 
+  as.factor()
+```
+
+Preparing trip data
+
+```{r}
+trips <- odbus %>%
+  select(c(ORIGIN_PT_CODE, DAY_TYPE, TIME_PER_HOUR, TOTAL_TRIPS)) %>%
+  rename(BUS_STOP_N = ORIGIN_PT_CODE) %>%
+  rename(HOUR_OF_DAY = TIME_PER_HOUR) %>%
+  rename(TRIPS = TOTAL_TRIPS)
+trips$BUS_STOP_N <- as.factor(trips$BUS_STOP_N)
+```
+
+Populate hexagon ids into bus-stop dataframe
+
+```{r}
+bs_hex <- st_intersection(
+  BusStop, hexagon) %>%
+  st_drop_geometry() %>%
+  select(c(BUS_STOP_N, HEX_ID))
+```
+
+```{r}
+trips <- inner_join(trips, bs_hex)
+```
+
+Aggregate Trips based on HEX-ID
+
+```{r}
+trips <- trips %>%
+  group_by(
+    HEX_ID,
+    DAY_TYPE,
+    HOUR_OF_DAY) %>%
+  summarise(TRIPS = sum(TRIPS))
+```
+
+```{r}
+head(trips)
+```
+
+Join trip data to hexagon geometry
+
+```{r}
+hex_trips <- hexagon %>%
+  left_join(trips, by = "HEX_ID") %>%
+  st_as_sf()
+```
+
+```{r}
+hex_trips <- hex_trips %>%
+  mutate(time_window = case_when(
+    DAY_TYPE == "WEEKDAY" & HOUR_OF_DAY >= 6 & HOUR_OF_DAY <= 9  ~ "Weekday_Morning",
+    DAY_TYPE == "WEEKDAY" & HOUR_OF_DAY >= 17 & HOUR_OF_DAY <= 20 ~ "Weekday_Afternoon",
+    DAY_TYPE == "WEEKENDS/HOLIDAY" & HOUR_OF_DAY >= 11 & HOUR_OF_DAY <= 20 ~ "Weekend_Holiday",
+    TRUE ~ NA_character_
+  )) %>%
+  filter(!is.na(time_window))
+```
+
+```{r}
+head(hex_trips)
+```
+
+# Local Indicator of Spatial Association (LISA)
+
+## Weekday morning peak (6am to 9am)
+
+### Computing Contiguity Spatial Weights
+
+Filtering out weekday morning peak
+
+```{r}
+weekdaymorn_peak <- hex_trips %>%
+  filter(time_window == "Weekday_Morning")
+```
+
+```{r}
+wm_peak <- weekdaymorn_peak %>%
+  mutate(nb = st_contiguity(geometry),
+         wt = st_weights(
+           nb, style = "W", allow_zero = TRUE),
+         .before = 1) 
+```
+
+```{r}
+summary(wm_peak$nb)
+```
+
+### Computing local Moran's I
+
+```{r}
+set.seed(1234)
+```
+
+```{r}
+lisa_wm_peak <- wm_peak %>%
+  mutate(local_moran = local_moran(TRIPS, nb, wt, nsim = 99)) %>%
+  unnest(local_moran)
+```
+
+```{r}
+glimpse(lisa_wm_peak)
+```
+
+#### Mapping both local Moran’s I values and p-values
+
+```{r}
+ii.map <- tm_shape(lisa_wm_peak) +
+  tm_polygons(fill = "ii",
+              fill.scale = tm_scale_intervals(
+                style = "pretty",
+                n = 5,
+                values = "brewer.RdBu"),
+              fill.legend = tm_legend(
+                title = "Local Moran's I",
+                position = tm_pos_in(
+                  "left", "bottom"))) + 
+  tm_borders(fill_alpha = 0.5) +
+  tm_title("Loal Moran's I of TRIPS (Queen's method)")
+
+p_ii.map <- tm_shape(lisa_wm_peak) +
+  tm_polygons(fill = "p_ii", 
+              fill.scale = tm_scale_intervals(
+                breaks = c(-Inf, 0.001, 0.01, 0.05, 0.1, Inf),
+                values = "-brewer.Reds"),
+              fill.legend = tm_legend(
+                title = "p-value",
+      position = tm_pos_in("left", "bottom")
+    )) + 
+  tm_borders(fill_alpha = 0.5) +
+  tm_title("p-values of Loal Moran's I of TRIPS (Queen's method)")
+
+tmap_arrange(ii.map, p_ii.map, asp=1, ncol=2)
+```
+
+### Preparing and Visualising LISA Map
+
+```{r}
+lisa_wm_peak <- lisa_wm_peak %>%
+  mutate(
+    lag_TRIPS = st_lag(TRIPS, nb, wt),
+    .before = 1
+  ) %>%
+  unnest(lag_TRIPS)
+```
+
+```{r}
+ggplot(data = lisa_wm_peak, 
+       aes(x = TRIPS, 
+           y = lag_TRIPS, 
+           color = mean)) +
+  geom_point(size = 2) +
+  geom_smooth(method = "lm", 
+              se = FALSE, 
+              color = "black") +
+  geom_hline(yintercept=mean(lisa_wm_peak$lag_TRIPS), lty=2) + 
+    geom_vline(xintercept=mean(lisa_wm_peak$TRIPS), lty=2) +
+  scale_color_manual(
+    values = c("High-High" = "red", 
+               "Low-Low" = "blue",
+               "Low-High" = "lightblue", 
+               "High-Low" = "pink")) +
+  labs(x = "TRIPS",
+       y = "Spatial Lag of TRIPS",
+       title = "Moran Scatterplot with LISA Quadrants") +
+  theme_minimal()
+```
+
+### Preparing LISA map classes
+
+```{r}
+signif <- 0.05       
+```
+
+```{r}
+lisa_wm_peak <- lisa_wm_peak %>%
+  mutate(
+    LISA_cluster = ifelse(
+      p_ii < 0.05,
+      as.character(mean), 
+      "Insignificant"),
+    LISA_cluster = factor(
+      LISA_cluster,
+      levels = c("Insignificant", "Low-Low", "Low-High", "High-Low", "High-High")
+    )
+  )
+```
+
+```{r}
+lisa_wm_peak_map <- tm_shape(lisa_wm_peak) + 
+  tm_polygons(
+    fill = "LISA_cluster",
+    fill.scale = tm_scale_categorical(
+      values = c(
+        "grey80",      # Insignificant
+        "blue",        # Low-Low
+        "lightblue",   # Low-High
+        "pink",        # High-Low
+        "red"          # High-High
+      )
+    ),
+    fill.legend = tm_legend(
+      title = "LISA Cluster",
+      position = tm_pos_in("left", "bottom"))
+  ) +
+  tm_borders() +
+  tm_title("Local Moran's I Clusters (p < 0.05)")
+lisa_wm_peak_map
+```
+
+### Hot Spots 
+
+```{r}
+weekdaymorn_peak <- weekdaymorn_peak %>%
+  distinct(geometry, .keep_all = TRUE)
+```
+
+```{r}
+ct <- critical_threshold(st_geometry(weekdaymorn_peak))
+ct
+```
+
+#### Computing fixed weights
+
+```{r}
+weekdaymorn_peak_fdw <- weekdaymorn_peak %>% 
+  mutate(nb = include_self(
+    st_dist_band(
+      st_geometry(geometry), 
+                 upper = ct)),
+    wt = st_weights(nb, 
+                      style = "W"),
+    .before = 1) 
+```
+
+#### Computing adaptive weights
+
+```{r}
+weekdaymorn_peak_adw <- weekdaymorn_peak %>%
+  mutate(nb = include_self(
+    st_knn(
+      st_geometry(geometry),
+      k = 6)),
+    wt = st_weights(
+      nb, style = "W"),
+    .before = 1)
+```
+
+#### Computing local Gi\*
+
+```{r}
+HCSA_weekdaymorn_peak_fdw <- weekdaymorn_peak_fdw %>%
+  mutate(
+    gistar = local_gstar_perm(
+      TRIPS, nb, wt, nsim = 99),
+    .before = 1) %>%
+  unnest(gistar)
+```
+
+#### Preparing and visualising HCSA Map
+
+```{r}
+Gi_star_weekdaymorn_map <- tm_shape(HCSA_weekdaymorn_peak_fdw) +
+  tm_polygons(fill = "gi_star",
+              fill.scale = tm_scale_intervals(
+                style = "pretty",
+                n = 5,
+                values = "-brewer.rd_bu"),
+              fill.legend = tm_legend(
+                title = "local Gi*",
+                position = tm_pos_in(
+                  "left", "bottom"))) + 
+  tm_borders(fill_alpha = 0.5) +
+  tm_title("Local Gi* of TRIPS")
+
+p_values_map <- tm_shape(HCSA_weekdaymorn_peak_fdw) +
+  tm_polygons(fill = "p_sim", 
+              fill.scale = tm_scale_intervals(
+                breaks = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+                values = "-brewer.reds"),
+              fill.legend = tm_legend(
+                title = "p-value",
+      position = tm_pos_in("left", "bottom")
+    )) + 
+  tm_borders(fill_alpha = 0.5) +
+  tm_title("p-values of local Gi* of TRIPS (fixed distance)")
+
+tmap_arrange(Gi_star_weekdaymorn_map, p_values_map, asp=1, ncol=2)
+```
+
+#### Plotting and visualising HCSA Map
+
+```{r}
+HCSA_weekdaymorn_peak_fdw <- HCSA_weekdaymorn_peak_fdw %>%
+  mutate(HCSA_cluster = case_when(
+    p_sim > 0.05 ~ "Insignificant",
+    p_sim <= 0.05 & cluster == "High" ~ "Hot spot",
+    p_sim <= 0.05 & cluster == "Low"  ~ "Cold spot",
+    TRUE ~ "Other"),
+    HCSA_cluster = factor(
+      HCSA_cluster,
+      levels = c("Insignificant", "Hot spot", "Cold spot")
+    ),
+    .before = 1
+  )
+```
+
+```{r}
+HCSA_weekdaymorn_peak_map <- tm_shape(HCSA_weekdaymorn_peak_fdw) + 
+  tm_polygons(
+    fill = "HCSA_cluster",
+    fill.scale = tm_scale_categorical(
+      values = c(
+        "grey80",      # Insignificant
+        "red",        # Low-Low
+        "blue"          # High-High
+      )
+    ),
+    fill.legend = tm_legend(
+      title = "HSCA Cluster",
+      position = tm_pos_in("left", "bottom"))
+  ) +
+  tm_borders() +
+  tm_title("HCSA Clusters (p < 0.05)")
+```
+
+```{r}
+tmap_arrange(Gi_star_weekdaymorn_map, HCSA_weekdaymorn_peak_map, asp=1, ncol=2)
+```
+
+## Weekday afternoon peak (5pm to 8pm)
+
+### Computing Contiguity Spatial Weights
+
+Filtering out weekday afternoon peak
+
+```{r}
+weekdayaft_peak <- hex_trips %>%
+  filter(time_window == "Weekday_Afternoon")
+```
+
+```{r}
+wa_peak <- weekdayaft_peak %>%
+  mutate(nb = st_contiguity(geometry),
+         wt = st_weights(
+           nb, style = "W", allow_zero = TRUE),
+         .before = 1) 
+```
+
+```{r}
+summary(wa_peak$nb)
+```
+
+### Computing local Moran's I
+
+```{r}
+set.seed(1234)
+```
+
+```{r}
+lisa_wa_peak <- wa_peak %>%
+  mutate(local_moran = local_moran(TRIPS, nb, wt, nsim = 99)) %>%
+  unnest(local_moran)
+```
+
+```{r}
+glimpse(lisa_wa_peak)
+```
+
+#### Mapping both local Moran’s I values and p-values
+
+```{r}
+ii.map <- tm_shape(lisa_wa_peak) +
+  tm_polygons(fill = "ii",
+              fill.scale = tm_scale_intervals(
+                style = "pretty",
+                n = 5,
+                values = "brewer.RdBu"),
+              fill.legend = tm_legend(
+                title = "Local Moran's I",
+                position = tm_pos_in(
+                  "left", "bottom"))) + 
+  tm_borders(fill_alpha = 0.5) +
+  tm_title("Loal Moran's I of TRIPS (Queen's method)")
+
+p_ii.map <- tm_shape(lisa_wa_peak) +
+  tm_polygons(fill = "p_ii", 
+              fill.scale = tm_scale_intervals(
+                breaks = c(-Inf, 0.001, 0.01, 0.05, 0.1, Inf),
+                values = "-brewer.Reds"),
+              fill.legend = tm_legend(
+                title = "p-value",
+      position = tm_pos_in("left", "bottom")
+    )) + 
+  tm_borders(fill_alpha = 0.5) +
+  tm_title("p-values of Local Moran's I of TRIPS (Queen's method)")
+
+tmap_arrange(ii.map, p_ii.map, asp=1, ncol=2)
+```
+
+### Preparing and Visualising LISA Map
+
+```{r}
+lisa_wa_peak <- lisa_wa_peak %>%
+  mutate(
+    lag_TRIPS = st_lag(TRIPS, nb, wt),
+    .before = 1
+  ) %>%
+  unnest(lag_TRIPS)
+```
+
+```{r}
+ggplot(data = lisa_wa_peak, 
+       aes(x = TRIPS, 
+           y = lag_TRIPS, 
+           color = mean)) +
+  geom_point(size = 2) +
+  geom_smooth(method = "lm", 
+              se = FALSE, 
+              color = "black") +
+  geom_hline(yintercept=mean(lisa_wa_peak$lag_TRIPS), lty=2) + 
+    geom_vline(xintercept=mean(lisa_wa_peak$TRIPS), lty=2) +
+  scale_color_manual(
+    values = c("High-High" = "red", 
+               "Low-Low" = "blue",
+               "Low-High" = "lightblue", 
+               "High-Low" = "pink")) +
+  labs(x = "TRIPS",
+       y = "Spatial Lag of TRIPS",
+       title = "Moran Scatterplot with LISA Quadrants") +
+  theme_minimal()
+```
+
+### Preparing LISA map classes
+
+```{r}
+signif <- 0.05       
+```
+
+```{r}
+lisa_wa_peak <- lisa_wa_peak %>%
+  mutate(
+    LISA_cluster = ifelse(
+      p_ii < 0.05,
+      as.character(mean), 
+      "Insignificant"),
+    LISA_cluster = factor(
+      LISA_cluster,
+      levels = c("Insignificant", "Low-Low", "Low-High", "High-Low", "High-High")
+    )
+  )
+```
+
+```{r}
+lisa_wa_peak_map <- tm_shape(lisa_wa_peak) + 
+  tm_polygons(
+    fill = "LISA_cluster",
+    fill.scale = tm_scale_categorical(
+      values = c(
+        "grey80",      # Insignificant
+        "blue",        # Low-Low
+        "lightblue",   # Low-High
+        "pink",        # High-Low
+        "red"          # High-High
+      )
+    ),
+    fill.legend = tm_legend(
+      title = "LISA Cluster",
+      position = tm_pos_in("left", "bottom"))
+  ) +
+  tm_borders() +
+  tm_title("Local Moran's I Clusters (p < 0.05)")
+lisa_wa_peak_map
+```
+
+### Hot Spots 
+
+```{r}
+weekdayaft_peak <- weekdayaft_peak %>%
+  distinct(geometry, .keep_all = TRUE)
+```
+
+```{r}
+ct <- critical_threshold(st_geometry(weekdayaft_peak))
+ct
+```
+
+#### Computing fixed weights
+
+```{r}
+weekdayaft_peak_fdw <- weekdayaft_peak %>% 
+  mutate(nb = include_self(
+    st_dist_band(
+      st_geometry(geometry), 
+                 upper = ct)),
+    wt = st_weights(nb, 
+                      style = "W"),
+    .before = 1) 
+```
+
+#### Computing adaptive weights
+
+```{r}
+weekdayaft_peak_adw <- weekdayaft_peak %>%
+  mutate(nb = include_self(
+    st_knn(
+      st_geometry(geometry),
+      k = 6)),
+    wt = st_weights(
+      nb, style = "W"),
+    .before = 1)
+```
+
+#### Computing local Gi\*
+
+```{r}
+HCSA_weekdayaft_peak_fdw <- weekdayaft_peak_fdw %>%
+  mutate(
+    gistar = local_gstar_perm(
+      TRIPS, nb, wt, nsim = 99),
+    .before = 1) %>%
+  unnest(gistar)
+```
+
+#### Preparing and visualising HCSA Map
+
+```{r}
+Gi_star_weekdayaft_map <- tm_shape(HCSA_weekdayaft_peak_fdw) +
+  tm_polygons(fill = "gi_star",
+              fill.scale = tm_scale_intervals(
+                style = "pretty",
+                n = 5,
+                values = "-brewer.rd_bu"),
+              fill.legend = tm_legend(
+                title = "local Gi*",
+                position = tm_pos_in(
+                  "left", "bottom"))) + 
+  tm_borders(fill_alpha = 0.5) +
+  tm_title("Local Gi* of TRIPS")
+
+p_values_map <- tm_shape(HCSA_weekdayaft_peak_fdw) +
+  tm_polygons(fill = "p_sim", 
+              fill.scale = tm_scale_intervals(
+                breaks = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+                values = "-brewer.reds"),
+              fill.legend = tm_legend(
+                title = "p-value",
+      position = tm_pos_in("left", "bottom")
+    )) + 
+  tm_borders(fill_alpha = 0.5) +
+  tm_title("p-values of local Gi* of TRIPS (fixed distance)")
+
+tmap_arrange(Gi_star_weekdayaft_map, p_values_map, asp=1, ncol=2)
+```
+
+#### Plotting and visualising HCSA Map
+
+```{r}
+HCSA_weekdayaft_peak_fdw <- HCSA_weekdayaft_peak_fdw %>%
+  mutate(HCSA_cluster = case_when(
+    p_sim > 0.05 ~ "Insignificant",
+    p_sim <= 0.05 & cluster == "High" ~ "Hot spot",
+    p_sim <= 0.05 & cluster == "Low"  ~ "Cold spot",
+    TRUE ~ "Other"),
+    HCSA_cluster = factor(
+      HCSA_cluster,
+      levels = c("Insignificant", "Hot spot", "Cold spot")
+    ),
+    .before = 1
+  )
+```
+
+```{r}
+HCSA_weekdayaft_peak_map <- tm_shape(HCSA_weekdayaft_peak_fdw) + 
+  tm_polygons(
+    fill = "HCSA_cluster",
+    fill.scale = tm_scale_categorical(
+      values = c(
+        "grey80",      # Insignificant
+        "red",        # Low-Low
+        "blue"          # High-High
+      )
+    ),
+    fill.legend = tm_legend(
+      title = "HSCA Cluster",
+      position = tm_pos_in("left", "bottom"))
+  ) +
+  tm_borders() +
+  tm_title("HCSA Clusters (p < 0.05)")
+```
+
+```{r}
+tmap_arrange(Gi_star_weekdayaft_map, HCSA_weekdayaft_peak_map, asp=1, ncol=2)
+```
+
+## Weekend/holiday (11am to 8pm)
+
+### Computing Contiguity Spatial Weights
+
+Filtering out weekday afternoon peak
+
+```{r}
+weekendhol_peak <- hex_trips %>%
+  filter(time_window == "Weekend_Holiday")
+```
+
+```{r}
+wh_peak <- weekendhol_peak %>%
+  mutate(nb = st_contiguity(geometry),
+         wt = st_weights(
+           nb, style = "W", allow_zero = TRUE),
+         .before = 1) 
+```
+
+```{r}
+summary(wh_peak$nb)
+```
+
+### Computing local Moran's I
+
+```{r}
+set.seed(1234)
+```
+
+```{r}
+lisa_wh_peak <- wh_peak %>%
+  mutate(local_moran = local_moran(TRIPS, nb, wt, nsim = 99)) %>%
+  unnest(local_moran)
+```
+
+```{r}
+glimpse(lisa_wh_peak)
+```
+
+#### Mapping both local Moran’s I values and p-values
+
+```{r}
+ii.map <- tm_shape(lisa_wh_peak) +
+  tm_polygons(fill = "ii",
+              fill.scale = tm_scale_intervals(
+                style = "pretty",
+                n = 5,
+                values = "brewer.RdBu"),
+              fill.legend = tm_legend(
+                title = "Local Moran's I",
+                position = tm_pos_in(
+                  "left", "bottom"))) + 
+  tm_borders(fill_alpha = 0.5) +
+  tm_title("Loal Moran's I of TRIPS (Queen's method)")
+
+p_ii.map <- tm_shape(lisa_wh_peak) +
+  tm_polygons(fill = "p_ii", 
+              fill.scale = tm_scale_intervals(
+                breaks = c(-Inf, 0.001, 0.01, 0.05, 0.1, Inf),
+                values = "-brewer.Reds"),
+              fill.legend = tm_legend(
+                title = "p-value",
+      position = tm_pos_in("left", "bottom")
+    )) + 
+  tm_borders(fill_alpha = 0.5) +
+  tm_title("p-values of Local Moran's I of TRIPS (Queen's method)")
+
+tmap_arrange(ii.map, p_ii.map, asp=1, ncol=2)
+```
+
+### Preparing and Visualising LISA Map
+
+```{r}
+lisa_wh_peak <- lisa_wh_peak %>%
+  mutate(
+    lag_TRIPS = st_lag(TRIPS, nb, wt),
+    .before = 1
+  ) %>%
+  unnest(lag_TRIPS)
+```
+
+```{r}
+ggplot(data = lisa_wh_peak, 
+       aes(x = TRIPS, 
+           y = lag_TRIPS, 
+           color = mean)) +
+  geom_point(size = 2) +
+  geom_smooth(method = "lm", 
+              se = FALSE, 
+              color = "black") +
+  geom_hline(yintercept=mean(lisa_wh_peak$lag_TRIPS), lty=2) + 
+    geom_vline(xintercept=mean(lisa_wh_peak$TRIPS), lty=2) +
+  scale_color_manual(
+    values = c("High-High" = "red", 
+               "Low-Low" = "blue",
+               "Low-High" = "lightblue", 
+               "High-Low" = "pink")) +
+  labs(x = "TRIPS",
+       y = "Spatial Lag of TRIPS",
+       title = "Moran Scatterplot with LISA Quadrants") +
+  theme_minimal()
+```
+
+### Preparing LISA map classes
+
+```{r}
+signif <- 0.05       
+```
+
+```{r}
+lisa_wh_peak <- lisa_wh_peak %>%
+  mutate(
+    LISA_cluster = ifelse(
+      p_ii < 0.05,
+      as.character(mean), 
+      "Insignificant"),
+    LISA_cluster = factor(
+      LISA_cluster,
+      levels = c("Insignificant", "Low-Low", "Low-High", "High-Low", "High-High")
+    )
+  )
+```
+
+```{r}
+lisa_wh_peak_map <- tm_shape(lisa_wh_peak) + 
+  tm_polygons(
+    fill = "LISA_cluster",
+    fill.scale = tm_scale_categorical(
+      values = c(
+        "grey80",      # Insignificant
+        "blue",        # Low-Low
+        "lightblue",   # Low-High
+        "pink",        # High-Low
+        "red"          # High-High
+      )
+    ),
+    fill.legend = tm_legend(
+      title = "LISA Cluster",
+      position = tm_pos_in("left", "bottom"))
+  ) +
+  tm_borders() +
+  tm_title("Local Moran's I Clusters (p < 0.05)")
+lisa_wh_peak_map
+```
+
+### Hot Spots 
+
+```{r}
+weekendhol_peak <- weekendhol_peak %>%
+  distinct(geometry, .keep_all = TRUE)
+```
+
+```{r}
+ct <- critical_threshold(st_geometry(weekendhol_peak))
+ct
+```
+
+#### Computing fixed weights
+
+```{r}
+weekendhol_peak_fdw <- weekendhol_peak %>% 
+  mutate(nb = include_self(
+    st_dist_band(
+      st_geometry(geometry), 
+                 upper = ct)),
+    wt = st_weights(nb, 
+                      style = "W"),
+    .before = 1) 
+```
+
+#### Computing adaptive weights
+
+```{r}
+weekendhol_peak_adw <- weekendhol_peak %>%
+  mutate(nb = include_self(
+    st_knn(
+      st_geometry(geometry),
+      k = 6)),
+    wt = st_weights(
+      nb, style = "W"),
+    .before = 1)
+```
+
+#### Computing local Gi\*
+
+```{r}
+HCSA_weekendhol_peak_fdw <- weekendhol_peak_fdw %>%
+  mutate(
+    gistar = local_gstar_perm(
+      TRIPS, nb, wt, nsim = 99),
+    .before = 1) %>%
+  unnest(gistar)
+```
+
+#### Preparing and visualising HCSA Map
+
+```{r}
+Gi_star_weekendhol_map <- tm_shape(HCSA_weekendhol_peak_fdw) +
+  tm_polygons(fill = "gi_star",
+              fill.scale = tm_scale_intervals(
+                style = "pretty",
+                n = 5,
+                values = "-brewer.rd_bu"),
+              fill.legend = tm_legend(
+                title = "local Gi*",
+                position = tm_pos_in(
+                  "left", "bottom"))) + 
+  tm_borders(fill_alpha = 0.5) +
+  tm_title("Local Gi* of TRIPS")
+
+p_values_map <- tm_shape(HCSA_weekendhol_peak_fdw) +
+  tm_polygons(fill = "p_sim", 
+              fill.scale = tm_scale_intervals(
+                breaks = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+                values = "-brewer.reds"),
+              fill.legend = tm_legend(
+                title = "p-value",
+      position = tm_pos_in("left", "bottom")
+    )) + 
+  tm_borders(fill_alpha = 0.5) +
+  tm_title("p-values of local Gi* of TRIPS (fixed distance)")
+
+tmap_arrange(Gi_star_weekendhol_map, p_values_map, asp=1, ncol=2)
+```
+
+#### Plotting and visualising HCSA Map
+
+```{r}
+HCSA_weekendhol_peak_fdw <- HCSA_weekendhol_peak_fdw %>%
+  mutate(HCSA_cluster = case_when(
+    p_sim > 0.05 ~ "Insignificant",
+    p_sim <= 0.05 & cluster == "High" ~ "Hot spot",
+    p_sim <= 0.05 & cluster == "Low"  ~ "Cold spot",
+    TRUE ~ "Other"),
+    HCSA_cluster = factor(
+      HCSA_cluster,
+      levels = c("Insignificant", "Hot spot", "Cold spot")
+    ),
+    .before = 1
+  )
+```
+
+```{r}
+HCSA_weekendhol_peak_map <- tm_shape(HCSA_weekendhol_peak_fdw) + 
+  tm_polygons(
+    fill = "HCSA_cluster",
+    fill.scale = tm_scale_categorical(
+      values = c(
+        "grey80",      # Insignificant
+        "red",        # Low-Low
+        "blue"          # High-High
+      )
+    ),
+    fill.legend = tm_legend(
+      title = "HSCA Cluster",
+      position = tm_pos_in("left", "bottom"))
+  ) +
+  tm_borders() +
+  tm_title("HCSA Clusters (p < 0.05)")
+```
+
+```{r}
+tmap_arrange(Gi_star_weekendhol_map, HCSA_weekendhol_peak_map, asp=1, ncol=2)
+```
