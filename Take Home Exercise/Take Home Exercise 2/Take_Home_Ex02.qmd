@@ -355,7 +355,7 @@ lisa_wm_peak_map <- tm_shape(lisa_wm_peak) +
 lisa_wm_peak_map
 ```
 
-### Hot Spots 
+### Hot Spots
 
 ```{r}
 weekdaymorn_peak <- weekdaymorn_peak %>%
@@ -620,7 +620,7 @@ lisa_wa_peak_map <- tm_shape(lisa_wa_peak) +
 lisa_wa_peak_map
 ```
 
-### Hot Spots 
+### Hot Spots
 
 ```{r}
 weekdayaft_peak <- weekdayaft_peak %>%
@@ -885,7 +885,7 @@ lisa_wh_peak_map <- tm_shape(lisa_wh_peak) +
 lisa_wh_peak_map
 ```
 
-### Hot Spots 
+### Hot Spots
 
 ```{r}
 weekendhol_peak <- weekendhol_peak %>%

@@ -1,0 +1,203 @@
+---
+title: "ISSS626 Hands On Exercise 10"
+---
+
+# Modelling Spatial Interaction and Flows
+
+## Overview
+
+Spatial interaction represent the flow of people, material, or information between locations in geographical space. It encompasses everything from freight shipments, energy flows, and the global trade in rare antiquities, to flight schedules, rush hour woes, and pedestrian foot traffic.
+
+Each spatial interaction, as an analogy for a set of movements, is composed of a discrete origin/destination pair. Each pair can be represented as a cell in a matrix where rows are related to the locations (centroids) of origin, while columns are related to locations (centroids) of destination. Such a matrix is commonly known as an origin/destination matrix, or a spatial interaction matrix.
+
+In this hands-on exercise, you will learn how to build an OD matrix by using [*Passenger Volume by Origin Destination Bus Stops*](https://r4gdsa.netlify.app/chap15) data set downloaded from [LTA DataMall](https://datamall.lta.gov.sg/content/datamall/en.html). By the end of this hands-on exercise, you will be able:
+
+-   to import and extract OD data for a selected time interval,
+
+-   to import and save geospatial data (i.e. bus stops and mpsz) into sf tibble data frame objects,
+
+-   to populate planning subzone code into bus stops sf tibble data frame,
+
+-   to construct desire lines geospatial data from the OD data, and
+
+-   to visualise passenger volume by origin and destination bus stops by using the desire lines data.
+
+## Preparing Flow Data
+
+```{r}
+setwd('/Users/zishengwong/R Coding/ISSS626 Geospatial Analytics/Hands-on_Ex/Hands-on_ex10')
+```
+
+```{r}
+pacman::p_load(tmap, sf, DT, stplanr, tidyverse)
+```
+
+```{r}
+odbus <- read_csv("data/aspatial/origin_destination_bus_202509.csv")
+```
+
+```{r}
+glimpse(odbus)
+```
+
+```{r}
+odbus$ORIGIN_PT_CODE <- as.factor(odbus$ORIGIN_PT_CODE)
+odbus$DESTINATION_PT_CODE <- as.factor(odbus$DESTINATION_PT_CODE) 
+```
+
+Extracting study data
+
+```{r}
+odbus6_9 <- odbus %>%
+  filter(DAY_TYPE == "WEEKDAY") %>%
+  filter(TIME_PER_HOUR >= 6 &
+           TIME_PER_HOUR <= 9) %>%
+  group_by(ORIGIN_PT_CODE,
+           DESTINATION_PT_CODE) %>%
+  summarise(TRIPS = sum(TOTAL_TRIPS))
+```
+
+```{r}
+datatable(odbus6_9)
+```
+
+Write data
+
+```{r}
+write_rds(odbus6_9, "data/rds/odbus6_9.rds")
+```
+
+```{r}
+odbus6_9 <- read_rds("data/rds/odbus6_9.rds")
+```
+
+## Working with Geospatial Data
+
+```{r}
+busstop <- st_read(dsn = "data/geospatial",
+                   layer = "BusStop") %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+mpsz <- read_rds("data/rds/mpsz_cl.rds") %>% st_transform(crs=3414)
+```
+
+```{r}
+mpsz
+```
+
+## Geospatial data wrangling
+
+### Combining Busstop and mpsz
+
+```{r}
+busstop_mpsz <- st_intersection(busstop, mpsz) %>%
+  select(BUS_STOP_N, SUBZONE_C) %>%
+  st_drop_geometry()
+```
+
+```{r}
+datatable(busstop_mpsz)
+```
+
+```{r}
+write_rds(busstop_mpsz, "data/rds/busstop_mpsz.rds")  
+```
+
+```{r}
+od_data <- left_join(odbus6_9 , busstop_mpsz,
+            by = c("ORIGIN_PT_CODE" = "BUS_STOP_N")) %>%
+  rename(ORIGIN_BS = ORIGIN_PT_CODE,
+         ORIGIN_SZ = SUBZONE_C,
+         DESTIN_BS = DESTINATION_PT_CODE)
+```
+
+```{r}
+duplicate <- od_data %>%
+  group_by_all() %>%
+  filter(n()>1) %>%
+  ungroup()
+```
+
+```{r}
+od_data <- unique(od_data)
+```
+
+```{r}
+od_data <- left_join(od_data , busstop_mpsz,
+            by = c("DESTIN_BS" = "BUS_STOP_N")) 
+```
+
+```{r}
+duplicate <- od_data %>%
+  group_by_all() %>%
+  filter(n()>1) %>%
+  ungroup()
+```
+
+```{r}
+od_data <- unique(od_data)
+```
+
+```{r}
+od_data <- od_data %>%
+  rename(DESTIN_SZ = SUBZONE_C) %>%
+  drop_na() %>%
+  group_by(ORIGIN_SZ, DESTIN_SZ) %>%
+  summarise(MORNING_PEAK = sum(TRIPS))
+```
+
+```{r}
+write_rds(od_data, "data/rds/od_data_fii.rds")
+```
+
+```{r}
+od_data_fii <- read_rds("data/rds/od_data_fii.rds")
+```
+
+## Visualising Spatial Interaction
+
+### Removing intra-zonal flows
+
+```{r}
+od_data_fij <- od_data[od_data$ORIGIN_SZ!=od_data$DESTIN_SZ,]
+```
+
+```{r}
+write_rds(od_data_fij, "data/rds/od_data_fij.rds")
+```
+
+```{r}
+od_data_fij <- read_rds("data/rds/od_data_fij.rds")
+```
+
+### Creating desire lines
+
+```{r}
+flowLine <- od2line(flow = od_data_fij, 
+                    zones = mpsz,
+                    zone_code = "SUBZONE_C")
+```
+
+```{r}
+write_rds(flowLine, "data/rds/flowLine.rds")
+```
+
+```{r}
+flowLine <- read_rds("data/rds/flowLine.rds")
+```
+
+### Visualising desire lines
+
+```{r}
+tm_shape(mpsz) +
+  tm_polygons() +
+flowLine %>%  
+tm_shape() +
+  tm_lines(lwd = "MORNING_PEAK",
+           style = "quantile",
+           scale = c(0.1, 1, 3, 5, 7, 10),
+           n = 6,
+           alpha = 0.3)
+```
