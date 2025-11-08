@@ -1,0 +1,88 @@
+---
+title: "In-class Exercise 8"
+author: "Wong Zi Sheng"
+date: "Octover 25, 2025"
+date-modified: "last-modified"
+---
+
+```{r}
+setwd('/Users/zishengwong/R Coding/ISSS626 Geospatial Analytics/In-Class Exercise/In-class Exercise 8')
+```
+
+```{r}
+pacman::p_load(httr, tidyverse, sf, tmap, 
+               jsonlite, progress)
+```
+
+```{r}
+HDBresale <- read_csv(
+  "data/rawdata/HDBresale.csv") %>%
+  filter(flat_type == "4 ROOM") %>%
+  filter(month >= "2025-09" & month < "2025-10")
+```
+
+```{r}
+geocode <- function(block, streetname) {
+  base_url <- "https://onemap.gov.sg/api/common/elastic/search"
+  address <- paste(block, streetname, sep = " ")
+  query <- list("searchVal" = address, 
+                "returnGeom" = "Y",
+                "getAddrDetails" = "N",
+                "pageNum" = "1")
+  
+  res <- GET(base_url, query = query)
+  restext<-content(res, as="text")
+  
+  output <- fromJSON(restext)  %>% 
+    as.data.frame %>%
+    select(results.LATITUDE, results.LONGITUDE)
+
+  return(output)
+}
+```
+
+```{r}
+HDBresale$LATITUDE <- 0
+HDBresale$LONGITUDE <- 0
+
+for (i in 1:nrow(HDBresale)){
+  temp_output <- geocode(HDBresale[i, 4], HDBresale[i, 5])
+  
+  HDBresale$LATITUDE[i] <- temp_output$results.LATITUDE
+  HDBresale$LONGITUDE[i] <- temp_output$results.LONGITUDE
+}
+```
+
+```{r}
+HDBresale_sf <- HDBresale %>%
+  st_as_sf(
+    coords = c("LONGITUDE", "LATITUDE"),
+    crs=4326) %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+preschool = st_read(
+  "data/rawdata/PreSchoolsLocation.kml") %>%
+  st_transform(crs= 3414)
+```
+
+```{r}
+within_350m <- st_is_within_distance(
+  HDBresale_sf, preschool, dist = 350)
+
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(WITHIN_350M_PRISCHOOL = map_int(within_350m, length))
+```
+
+```{r}
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(
+    PROX_PRESCHOOL = as.numeric(
+      st_distance(geometry,
+                  preschool[st_nearest_feature(
+                    geometry, preschool), ], 
+                  by_element = TRUE)
+      )
+    )
+```

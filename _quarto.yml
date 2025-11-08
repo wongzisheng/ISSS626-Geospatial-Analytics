@@ -32,12 +32,17 @@ website:
         href: "./In-Class Exercise/In-Class Exercise 6/In_Class_Ex06.html"
       - text: "In-class Exercise 7"
         href: "./In-Class Exercise/In-Class Exercise 7/In_Class_Ex07.html"
+      - text: "In-class Exercise 8"
+        href: "./In-Class Exercise/In-Class Exercise 8/In_Class_Ex08.html"
+        
     - text: "Take-home exercise"
       menu:
       - text: "Take-Home Exercise1"
         href: "./Take Home Exercise/Take Home Exercise 1/Take_Home_Ex01.html"
       - text: "Take-Home Exercise2"
         href: "./Take Home Exercise/Take Home Exercise 2/Take_Home_Ex02.html"
+      - text: "Take-Home Exercise3"
+        href: "./Take Home Exercise/Take Home Exercise 3/Take_Home_Ex03.html"
 
     right:
       - href: index.qmd
