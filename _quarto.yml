@@ -34,6 +34,8 @@ website:
         href: "./In-Class Exercise/In-Class Exercise 7/In_Class_Ex07.html"
       - text: "In-class Exercise 8"
         href: "./In-Class Exercise/In-Class Exercise 8/In_Class_Ex08.html"
+      - text: "In-class Exercise 10"
+        href: "./In-Class Exercise/In-Class Exercise 10/In_Class_Ex10.html"
         
     - text: "Take-home exercise"
       menu:
@@ -41,8 +43,8 @@ website:
         href: "./Take Home Exercise/Take Home Exercise 1/Take_Home_Ex01.html"
       - text: "Take-Home Exercise2"
         href: "./Take Home Exercise/Take Home Exercise 2/Take_Home_Ex02.html"
-      - text: "Take-Home Exercise3"
-        href: "./Take Home Exercise/Take Home Exercise 3/Take_Home_Ex03.html"
+      #- text: "Take-Home Exercise3"
+        #href: "./Take Home Exercise/Take Home Exercise 3/Take_Home_Ex03.html"
 
     right:
       - href: index.qmd

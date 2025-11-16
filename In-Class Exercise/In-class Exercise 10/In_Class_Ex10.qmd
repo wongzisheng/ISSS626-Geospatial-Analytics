@@ -1,0 +1,266 @@
+---
+title: "In-class Exercise 10"
+author: "Wong Zi Sheng"
+date: "Octover 25, 2025"
+date-modified: "last-modified"
+---
+
+# **Market Area Analysis for Retail and Service Locations using Huff model**
+
+## Overview
+
+Market area analysis (also known as Trade Area Analysis) is the process of defining and studying the geographical area from which a business draws its customers. It involves analyzing data on consumer demographics, spending habits, and competitors to understand market viability, identify opportunities, and inform decisions about location, marketing, and expansion. It often combines empirical observation, like customer spotting, with mathematical models to identify market segments and understand customer behavior.
+
+Huff model is a geospatial analysis method commonly used in market area analysis to predict the probability that a consumer from a specific area will patronize a particular store, based on the store’s attractiveness and distance relative to competitors. It calculates a store’s market share by considering factors like size or sales for attractiveness and distance or travel time, with the probability decreasing as distance or competition increases. This tool helps businesses assess potential revenue, define trade areas, and make informed decisions about site selection
+
+```{r}
+setwd('/Users/zishengwong/R Coding/ISSS626 Geospatial Analytics/In-Class Exercise/In-class Exercise 10')
+```
+
+```{r}
+pacman::p_load(sf, tidyverse, MCI, tmap, ggstatsplot)
+```
+
+## Import data
+
+```{r}
+stores <- st_read(
+  dsn = "data/geospatial",
+  layer = "STORES_TC")
+```
+
+```{r}
+town <- st_read(
+  dsn = "data/geospatial",
+  layer = "TOWN_TC")
+```
+
+```{r}
+village <- st_read(
+  dsn = "data/geospatial",
+  layer = "VILLAGE_TC")
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(town) +
+  tm_polygons() +
+tm_shape(village) +
+  tm_polygons() + 
+tm_shape(stores) +
+  tm_dots()
+```
+
+```{r}
+pop2019 <- read_csv(
+  "data/aspatial/pop2019.csv")
+
+store_sales <- read_csv(
+  "data/aspatial/Store_sales_data.csv")
+```
+
+```{r}
+summary(store_sales)
+```
+
+## Data preparation
+
+### Aggregate store sales
+
+```{r}
+store_sales_aggre <- store_sales %>%
+  group_by(`Store Code`) %>%
+  summarise(
+    "Total_Bill" = sum(Bills, na.rm = TRUE),
+    "Total_Sales" = sum(Amount, na.rm = TRUE))
+```
+
+### Relational Join
+
+```{r}
+stores <- stores %>%
+  left_join(store_sales_aggre,
+            by = join_by(
+              Store_CD == `Store Code`)) %>%
+  mutate(Store_size = 100)
+```
+
+```{r}
+summary(stores)
+```
+
+### Tidying pop2019 dataframe
+
+```{r}
+glimpse(pop2019)
+```
+
+```{r}
+glimpse(village)
+```
+
+```{r}
+pop2019 <- pop2019 %>%
+  mutate(V_ID = str_remove_all(
+    V_ID, "-"))
+```
+
+```{r}
+village <- village %>%
+  left_join(pop2019,
+            by = join_by(
+              VILLCODE == V_ID))
+```
+
+### Check for missing values
+
+```{r}
+summary(village)
+```
+
+```{r}
+village <- village %>%
+  filter(!is.na(P_CNT)) 
+```
+
+```{r}
+any(is.na(village$H_CNT))
+```
+
+```{r}
+any(is.na(village$P_CNT))
+```
+
+```{r}
+any(is.na(village$M_CNT))
+```
+
+```{r}
+any(is.na(village$F_CNT))
+```
+
+## Compute distance matrix
+
+```{r}
+village_center <- st_point_on_surface(village)
+distmat <- st_distance(village_center, stores) 
+```
+
+```{r}
+rownames(distmat) <- village$`VILLCODE`
+colnames(distmat) <- stores$`Store_CD`
+
+distmat_long <- distmat %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "VILLCODE") %>%
+  pivot_longer(
+    cols = -VILLCODE,
+    names_to = "Store_CD",
+    values_to = "distance"
+  ) %>%
+  mutate(distance = as.numeric(distance)) 
+```
+
+## Preparing Interaction Matrix
+
+```{r}
+interaction_matrix <- distmat_long %>%
+  left_join(
+    stores %>% 
+      st_drop_geometry() %>% 
+      select(Store_CD, Store_size),
+    by = "Store_CD") %>%
+  relocate(
+    distance, .after = last_col())
+```
+
+```{r}
+summary(interaction_matrix)
+```
+
+## Computing Huff model
+
+```{r}
+huff_share <- huff.shares(
+  interaction_matrix, "VILLCODE", "Store_CD", 
+  "Store_size", "distance")
+```
+
+### Trade area analysis for a single store
+
+```{r}
+market_share <- huff_share %>%
+  filter(Store_CD == "TG")
+```
+
+```{r}
+Trade_area <- village %>%
+  left_join(market_share)
+```
+
+```{r}
+selected_store <- stores %>%
+  filter(Store_CD == "TG")
+```
+
+```{r}
+tm_shape(Trade_area) +
+  tm_polygons(fill = "p_ij",
+              fill.scale = tm_scale_intervals(
+                style = "quantile", 
+                n = 10,
+                values = "brewer.blues"),
+              fill.legend = tm_legend(
+                title = "Patronage Probability")) +
+  tm_shape(selected_store) +
+    tm_dots(size = 0.3,
+            fill = "red",
+            col = "black") +
+  tm_title("Distribution of Patronage Probability of Store BT by village") +
+  tm_layout(frame = TRUE) +
+  tm_borders(fill_alpha = 0.5) +
+  tm_compass(type="8star", size = 2) +
+  tm_scalebar() +
+  tm_grid(alpha =0.2) 
+```
+
+### Store sales analysis
+
+```{r}
+huff_share_pp <- huff_share %>%
+  left_join(village %>% 
+      st_drop_geometry() %>% 
+      select(VILLCODE, P_CNT),
+    by = "VILLCODE") %>%
+  relocate(
+    distance, .after = last_col())
+```
+
+```{r}
+huff_total <- shares.total(
+  huff_share_pp, "VILLCODE", "Store_CD",
+  "p_ij", "P_CNT")
+```
+
+```{r}
+store_sales_est <- stores %>%
+  left_join(huff_total,
+            by = join_by(
+              "Store_CD" == "suppliers_single"))
+```
+
+```{r}
+store_sales_nongeom <- store_sales_est %>% st_drop_geometry()
+
+ggscatterstats(
+  store_sales_nongeom,
+  x = sum_E_j,
+  y = Total_Sales)
+```
+
+```{r}
+huff_share_wider <- huff_share %>%
+  select(VILLCODE, Store_CD, p_ij) %>%
+    pivot_wider(names_from = Store_CD, 
+                values_from = p_ij)
+```

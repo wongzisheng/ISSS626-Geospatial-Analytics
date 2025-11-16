@@ -9,3 +9,417 @@ Housing is an essential component of household wealth worldwide. Purchasing a ho
 Structural factors refer to the characteristics of the property itself, such as size, fittings, and tenure. Locational factors, on the other hand, relate to the neighbourhood context of the property, including proximity to childcare centres, public transport, and shopping facilities.
 
 Traditionally, housing resale price models have been estimated using the Ordinary Least Squares (OLS) method. However, this approach does not account for spatial autocorrelation and spatial heterogeneity, which are commonly present in geographic datasets such as housing transactions. When spatial autocorrelation exists, OLS estimation of housing resale price models may produce biased, inconsistent, or inefficient results (Anselin, 1998). To address these limitations, **Geographically Weighted Models (GWMs)** have been introduced to more accurately calibrate both explanatory and predictive models for housing resale prices.
+
+# Objective
+
+The objective of this take-home exercise is to develop a spatially informed model to determine factors affecting or to predict HDB resale prices in Singapore, making use of appropriate geospatial analytics methods.
+
+```{r}
+setwd('/Users/zishengwong/R Coding/ISSS626 Geospatial Analytics/Take Home Exercise/Take Home Exercise 3')
+```
+
+```{r}
+pacman::p_load(httr, tidyverse, sf, tmap, 
+               jsonlite, progress)
+
+```
+
+```{r}
+pacman::p_load(sf, spdep, GWmodel, SpatialML, 
+               tmap, rsample, Metrics, tidyverse)
+```
+
+# Geocoding HDB resale data
+
+```{r}
+HDBresale <- read_csv(
+  "data/rawdata/HDBresale.csv") %>%
+  filter(month >= "2024-07" & month <= "2025-06")
+```
+
+-   Combining the block and street name into an address. The addresses will be used to geocode instead of postal code that you learned in In-class Exercise 3b,
+
+-   Passing the address as the **searchVal** in our query,
+
+-   Sending the query to **OneMapSG search**. Note: Since we don’t need all the address details, we can set getAddrDetails as ‘N’,
+
+-   Converting response (JSON object) to text,
+
+-   Saving response in text form as a dataframe, and
+
+-   Retain the latitude and longitude for our output.
+
+```{r}
+geocode <- function(block, streetname) {
+  base_url <- "https://onemap.gov.sg/api/common/elastic/search"
+  address <- paste(block, streetname, sep = " ")
+  query <- list("searchVal" = address, 
+                "returnGeom" = "Y",
+                "getAddrDetails" = "N",
+                "pageNum" = "1")
+  
+  res <- GET(base_url, query = query)
+  restext<-content(res, as="text")
+  
+  output <- fromJSON(restext)  %>% 
+    as.data.frame %>%
+    select(results.LATITUDE, results.LONGITUDE)
+
+  return(output)
+}
+```
+
+```{r}
+#| echo: false
+#| results: "hide"
+#| message: false
+#| warning: false
+
+HDBresale$LATITUDE <- 0
+HDBresale$LONGITUDE <- 0
+
+for (i in 1:nrow(HDBresale)) {
+  temp_output <- geocode(HDBresale[i, 4], HDBresale[i, 5])
+  HDBresale$LATITUDE[i] <- temp_output$results.LATITUDE
+  HDBresale$LONGITUDE[i] <- temp_output$results.LONGITUDE
+}
+```
+
+## Proximity Analysis
+
+Convert HDBresale to sf object
+
+```{r}
+HDBresale_sf <- HDBresale %>%
+  st_as_sf(
+    coords = c("LONGITUDE", "LATITUDE"),
+    crs=4326) %>%
+  st_transform(crs = 3414)
+```
+
+### Preschool
+
+```{r}
+preschool = st_read(
+  "data/rawdata/PreSchoolsLocation.kml") %>%
+  st_transform(crs= 3414)
+```
+
+```{r}
+within_350m_preschool <- st_is_within_distance(
+  HDBresale_sf, preschool, dist = 350)
+
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(WITHIN_350M_PRESCHOOL = map_int(within_350m_preschool, length))
+```
+
+```{r}
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(
+    PROX_PRESCHOOL = as.numeric(
+      st_distance(geometry,
+                  preschool[st_nearest_feature(
+                    geometry, preschool), ], 
+                  by_element = TRUE)
+      )
+    )
+```
+
+### Eldercare
+
+```{r}
+eldercare = st_read(
+  "./data/EldercareServicesKML.kml") %>%
+  st_transform(crs= 3414)
+```
+
+```{r}
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(
+    PROX_ELDERCARE = as.numeric(
+      st_distance(geometry,
+                  eldercare[st_nearest_feature(
+                    geometry, eldercare), ], 
+                  by_element = TRUE)
+      )
+    )
+```
+
+### Hawker center
+
+```{r}
+hawkercenter = st_read(
+  "./data/HawkerCentresKML.kml") %>%
+  st_transform(crs= 3414)
+```
+
+```{r}
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(
+    PROX_HAWKER = as.numeric(
+      st_distance(geometry,
+                  hawkercenter[st_nearest_feature(
+                    geometry, hawkercenter), ], 
+                  by_element = TRUE)
+      )
+    )
+```
+
+### SuperMarkets
+
+```{r}
+supermarkets = st_read(
+  "./data/SupermarketsKML.kml") %>%
+  st_transform(crs= 3414)
+```
+
+```{r}
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(
+    PROX_SUPERMARKETS = as.numeric(
+      st_distance(geometry,
+                  supermarkets[st_nearest_feature(
+                    geometry, supermarkets), ], 
+                  by_element = TRUE)
+      )
+    )
+```
+
+### Busstops
+
+```{r}
+BusStop = st_read(dsn = "data/LTADataMall/", 
+                  layer = "BusStop") %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+within_350m_bus <- st_is_within_distance(
+  HDBresale_sf, BusStop, dist = 350)
+
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(WITHIN_350M_BUSSTOP = map_int(within_350m_bus, length))
+```
+
+```{r}
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(
+    PROX_BUSSTOP = as.numeric(
+      st_distance(geometry,
+                  BusStop[st_nearest_feature(
+                    geometry, BusStop), ], 
+                  by_element = TRUE)
+      )
+    )
+```
+
+### Train Station
+
+```{r}
+Sys.setenv(OGR_GEOMETRY_ACCEPT_UNCLOSED_RING = "NO")
+
+TrainStation <- st_read(
+  dsn = "data/TrainStation/",
+  layer = "RapidTransitSystemStation"
+) %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(
+    PROX_TRAINSTATION = as.numeric(
+      st_distance(geometry,
+                  TrainStation[st_nearest_feature(
+                    geometry, TrainStation), ], 
+                  by_element = TRUE)
+      )
+    )
+```
+
+### Primary School
+
+```{r}
+PrimarySchool <- read_csv("data/Generalinformationofschools.csv")
+```
+
+```{r}
+geocode_postal <- function(postal_code) {
+  base_url <- "https://www.onemap.gov.sg/api/common/elastic/search"
+  query <- list(
+    searchVal = postal_code,
+    returnGeom = "Y",
+    getAddrDetails = "N",
+    pageNum = "1"
+  )
+  
+  res <- try(httr::GET(base_url, query = query), silent = TRUE)
+  if (inherits(res, "try-error")) return(c(NA, NA))
+  
+  restext <- httr::content(res, as = "text", encoding = "UTF-8")
+  
+  # parse JSON safely
+  output <- try(jsonlite::fromJSON(restext), silent = TRUE)
+  if (inherits(output, "try-error")) return(c(NA, NA))
+  
+  # Check if results exist and are a list
+  if (!is.null(output$results) && length(output$results) > 0) {
+    first_result <- output$results[[1]]
+    if (is.list(first_result) && all(c("LATITUDE", "LONGITUDE") %in% names(first_result))) {
+      lat <- as.numeric(first_result$LATITUDE)
+      lon <- as.numeric(first_result$LONGITUDE)
+      return(c(lat, lon))
+    }
+  }
+  
+  # fallback if results missing or malformed
+  return(c(NA, NA))
+}
+```
+
+```{r}
+library(dplyr)
+library(purrr)
+library(tibble)
+
+coords <- map_dfr(PrimarySchool$postal_code, function(code) {
+  Sys.sleep(0.5)  # polite delay to avoid rate limits
+  latlon <- geocode_postal(code)
+  tibble(LATITUDE = latlon[1], LONGITUDE = latlon[2])
+})
+
+PrimarySchool <- bind_cols(PrimarySchool, coords)
+```
+
+```{r}
+PrimarySchool_sf <- PrimarySchool %>%
+  filter(!is.na(LATITUDE) & !is.na(LONGITUDE)) %>%
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326) %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(
+    PROX_PRIMARYSCHOOL = as.numeric(
+      st_distance(
+        geometry,
+        PrimarySchool_sf[st_nearest_feature(geometry, PrimarySchool_sf), ],
+        by_element = TRUE
+      )
+    )
+  )
+```
+
+Preprocess columns
+
+```{r}
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(
+    STOREY_MID = str_extract(storey_range, "^\\d+") %>% as.numeric() +
+                 (str_extract(storey_range, "\\d+$") %>% as.numeric() -
+                  str_extract(storey_range, "^\\d+") %>% as.numeric()) / 2
+  )
+
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(
+    # Extract number of years
+    lease_years = str_extract(remaining_lease, "\\d+(?= years)") %>% as.numeric() %>% replace_na(0),
+    # Extract number of months
+    lease_months = str_extract(remaining_lease, "\\d+(?= months)") %>% as.numeric() %>% replace_na(0),
+    # Compute total months
+    remaining_lease_mths = lease_years * 12 + lease_months
+  ) %>%
+  select(-lease_years, -lease_months)  # optional: drop intermediate columns
+```
+
+```{r}
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(across(c(PROX_PRESCHOOL,PROX_ELDERCARE, PROX_HAWKER, PROX_TRAINSTATION,
+                  PROX_SUPERMARKETS,PROX_BUSSTOP,PROX_PRIMARYSCHOOL),
+                ~ . / 1000))  # convert meters to km
+```
+
+```{r}
+summary(HDBresale_sf)
+```
+
+Primary school has entirely NaNs, we will remove it from analysis.
+
+# Correlation analysis
+
+```{r}
+HDBresale_sf_copy <- HDBresale_sf  # simple deep copy
+```
+
+```{r}
+numeric_cols <- HDBresale_sf_copy %>% st_drop_geometry() %>%
+  select(where(is.numeric)) %>%
+  select(where(~ !all(is.na(.)) & var(., na.rm = TRUE) > 0))
+```
+
+```{r}
+library(corrplot)
+corrplot(
+  cor(numeric_cols, use = "pairwise.complete.obs"),  # handle NA
+  diag = FALSE, 
+  order = "AOE",
+  tl.pos = "td", 
+  tl.cex = 0.5, 
+  method = "number", 
+  type = "upper"
+)
+```
+
+remaining_lease_mths and lease_commence_data have high collinearity. However we will only be using remaining_lease_mths hence it is not a problem.
+
+No other columns have high collinearlity, we will include all in analysis.
+
+# GWR method
+
+## Computing adaptive bandwidth
+
+```{r}
+bw_adaptive <- bw.gwr(
+  formula = resale_price ~ floor_area_sqm +
+    STOREY_MID + remaining_lease_mths + PROX_ELDERCARE + PROX_HAWKER + PROX_PRESCHOOL + PROX_BUSSTOP+ 
+    PROX_TRAINSTATION + PROX_SUPERMARKETS + WITHIN_350M_BUSSTOP + WITHIN_350M_PRESCHOOL,
+  data=HDBresale_sf,
+  approach="CV",
+  kernel="gaussian",
+  adaptive=TRUE,
+  longlat=FALSE)
+```
+
+```{r}
+write_rds(bw_adaptive, "data/model/bw_adaptive.rds")
+```
+
+```{r}
+bw_adaptive <- read_rds("data/model/bw_adaptive.rds")
+```
+
+## Constructing adaptive bandwidth gwr model
+
+```{r}
+gwr_adaptive <- gwr.basic(
+  formula = resale_price ~ floor_area_sqm +
+    STOREY_MID + remaining_lease_mths + PROX_ELDERCARE + PROX_HAWKER + PROX_PRESCHOOL + PROX_BUSSTOP+ 
+    PROX_TRAINSTATION + PROX_SUPERMARKETS + WITHIN_350M_BUSSTOP + WITHIN_350M_PRESCHOOL,
+  data=HDBresale_sf,
+  bw=bw_adaptive, 
+  kernel = 'gaussian', 
+  adaptive=TRUE,
+  longlat = FALSE)
+```
+
+```{r}
+write_rds(gwr_adaptive, "data/model/gwr_adaptive.rds")
+```
+
+```{r}
+gwr_adaptive <- read_rds("data/model/gwr_adaptive.rds")
+gwr_adaptive
+```
+
+Results above show R square value of 0.723, AIC of 703701 and F-statistic that indicates highly significant (p\<0.001). Overall the OLS model provides a strong baseline, explaining approximately 72% of price variation.

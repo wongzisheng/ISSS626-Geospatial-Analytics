@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -145,6 +180,14 @@ ul.task-list li input[type="checkbox"] {
     <a class="dropdown-item" href="../.././In-Class Exercise/In-Class Exercise 7/In_Class_Ex07.html">
  <span class="dropdown-text">In-class Exercise 7</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../.././In-Class Exercise/In-Class Exercise 8/In_Class_Ex08.html">
+ <span class="dropdown-text">In-class Exercise 8</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../.././In-Class Exercise/In-Class Exercise 10/In_Class_Ex10.html">
+ <span class="dropdown-text">In-class Exercise 10</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -159,10 +202,6 @@ ul.task-list li input[type="checkbox"] {
         <li>
     <a class="dropdown-item" href="../.././Take Home Exercise/Take Home Exercise 2/Take_Home_Ex02.html">
  <span class="dropdown-text">Take-Home Exercise2</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../.././Take Home Exercise/Take Home Exercise 3/Take_Home_Ex03.html">
- <span class="dropdown-text">Take-Home Exercise3</span></a>
   </li>  
     </ul>
   </li>
@@ -193,6 +232,26 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#setting-the-scene" id="toc-setting-the-scene" class="nav-link active" data-scroll-target="#setting-the-scene">Setting the Scene</a></li>
+  <li><a href="#objective" id="toc-objective" class="nav-link" data-scroll-target="#objective">Objective</a></li>
+  <li><a href="#geocoding-hdb-resale-data" id="toc-geocoding-hdb-resale-data" class="nav-link" data-scroll-target="#geocoding-hdb-resale-data">Geocoding HDB resale data</a>
+  <ul class="collapse">
+  <li><a href="#proximity-analysis" id="toc-proximity-analysis" class="nav-link" data-scroll-target="#proximity-analysis">Proximity Analysis</a>
+  <ul class="collapse">
+  <li><a href="#preschool" id="toc-preschool" class="nav-link" data-scroll-target="#preschool">Preschool</a></li>
+  <li><a href="#eldercare" id="toc-eldercare" class="nav-link" data-scroll-target="#eldercare">Eldercare</a></li>
+  <li><a href="#hawker-center" id="toc-hawker-center" class="nav-link" data-scroll-target="#hawker-center">Hawker center</a></li>
+  <li><a href="#supermarkets" id="toc-supermarkets" class="nav-link" data-scroll-target="#supermarkets">SuperMarkets</a></li>
+  <li><a href="#busstops" id="toc-busstops" class="nav-link" data-scroll-target="#busstops">Busstops</a></li>
+  <li><a href="#train-station" id="toc-train-station" class="nav-link" data-scroll-target="#train-station">Train Station</a></li>
+  <li><a href="#primary-school" id="toc-primary-school" class="nav-link" data-scroll-target="#primary-school">Primary School</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#correlation-analysis" id="toc-correlation-analysis" class="nav-link" data-scroll-target="#correlation-analysis">Correlation analysis</a></li>
+  <li><a href="#gwr-method" id="toc-gwr-method" class="nav-link" data-scroll-target="#gwr-method">GWR method</a>
+  <ul class="collapse">
+  <li><a href="#computing-adaptive-bandwidth" id="toc-computing-adaptive-bandwidth" class="nav-link" data-scroll-target="#computing-adaptive-bandwidth">Computing adaptive bandwidth</a></li>
+  <li><a href="#constructing-adaptive-bandwidth-gwr-model" id="toc-constructing-adaptive-bandwidth-gwr-model" class="nav-link" data-scroll-target="#constructing-adaptive-bandwidth-gwr-model">Constructing adaptive bandwidth gwr model</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -223,8 +282,666 @@ ul.task-list li input[type="checkbox"] {
 <p>Housing is an essential component of household wealth worldwide. Purchasing a home has always represented a major investment for most individuals. The price of housing is influenced by a wide range of factors. Some are macro-level, such as the overall state of the economy or the inflation rate, while others are property-specific. These can be further categorized into structural and locational factors.</p>
 <p>Structural factors refer to the characteristics of the property itself, such as size, fittings, and tenure. Locational factors, on the other hand, relate to the neighbourhood context of the property, including proximity to childcare centres, public transport, and shopping facilities.</p>
 <p>Traditionally, housing resale price models have been estimated using the Ordinary Least Squares (OLS) method. However, this approach does not account for spatial autocorrelation and spatial heterogeneity, which are commonly present in geographic datasets such as housing transactions. When spatial autocorrelation exists, OLS estimation of housing resale price models may produce biased, inconsistent, or inefficient results (Anselin, 1998). To address these limitations,&nbsp;<strong>Geographically Weighted Models (GWMs)</strong>&nbsp;have been introduced to more accurately calibrate both explanatory and predictive models for housing resale prices.</p>
+</section>
+<section id="objective" class="level1">
+<h1>Objective</h1>
+<p>The objective of this take-home exercise is to develop a spatially informed model to determine factors affecting or to predict HDB resale prices in Singapore, making use of appropriate geospatial analytics methods.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">'/Users/zishengwong/R Coding/ISSS626 Geospatial Analytics/Take Home Exercise/Take Home Exercise 3'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(httr, tidyverse, sf, tmap, </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>               jsonlite, progress)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, spdep, GWmodel, SpatialML, </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>               tmap, rsample, Metrics, tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="geocoding-hdb-resale-data" class="level1">
+<h1>Geocoding HDB resale data</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>HDBresale <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data/rawdata/HDBresale.csv"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(month <span class="sc">&gt;=</span> <span class="st">"2024-07"</span> <span class="sc">&amp;</span> month <span class="sc">&lt;=</span> <span class="st">"2025-06"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 218676 Columns: 11
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (8): month, town, flat_type, block, street_name, storey_range, flat_mode...
+dbl (3): floor_area_sqm, lease_commence_date, resale_price
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<ul>
+<li><p>Combining the block and street name into an address. The addresses will be used to geocode instead of postal code that you learned in In-class Exercise 3b,</p></li>
+<li><p>Passing the address as the&nbsp;<strong>searchVal</strong>&nbsp;in our query,</p></li>
+<li><p>Sending the query to&nbsp;<strong>OneMapSG search</strong>. Note: Since we don’t need all the address details, we can set getAddrDetails as ‘N’,</p></li>
+<li><p>Converting response (JSON object) to text,</p></li>
+<li><p>Saving response in text form as a dataframe, and</p></li>
+<li><p>Retain the latitude and longitude for our output.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>geocode <span class="ot">&lt;-</span> <span class="cf">function</span>(block, streetname) {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  base_url <span class="ot">&lt;-</span> <span class="st">"https://onemap.gov.sg/api/common/elastic/search"</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  address <span class="ot">&lt;-</span> <span class="fu">paste</span>(block, streetname, <span class="at">sep =</span> <span class="st">" "</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  query <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">"searchVal"</span> <span class="ot">=</span> address, </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                <span class="st">"returnGeom"</span> <span class="ot">=</span> <span class="st">"Y"</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                <span class="st">"getAddrDetails"</span> <span class="ot">=</span> <span class="st">"N"</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                <span class="st">"pageNum"</span> <span class="ot">=</span> <span class="st">"1"</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">GET</span>(base_url, <span class="at">query =</span> query)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  restext<span class="ot">&lt;-</span><span class="fu">content</span>(res, <span class="at">as=</span><span class="st">"text"</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> <span class="fu">fromJSON</span>(restext)  <span class="sc">%&gt;%</span> </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    as.data.frame <span class="sc">%&gt;%</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(results.LATITUDE, results.LONGITUDE)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(output)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="proximity-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="proximity-analysis">Proximity Analysis</h2>
+<p>Convert HDBresale to sf object</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>HDBresale_sf <span class="ot">&lt;-</span> HDBresale <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"LONGITUDE"</span>, <span class="st">"LATITUDE"</span>),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs=</span><span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="preschool" class="level3">
+<h3 class="anchored" data-anchor-id="preschool">Preschool</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>preschool <span class="ot">=</span> <span class="fu">st_read</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data/rawdata/PreSchoolsLocation.kml"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs=</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `PRESCHOOLS_LOCATION' from data source 
+  `/Users/zishengwong/R Coding/ISSS626 Geospatial Analytics/Take Home Exercise/Take Home Exercise 3/data/rawdata/PreSchoolsLocation.kml' 
+  using driver `KML'
+Simple feature collection with 2290 features and 2 fields
+Geometry type: POINT
+Dimension:     XYZ
+Bounding box:  xmin: 103.6878 ymin: 1.247759 xmax: 103.9897 ymax: 1.462134
+z_range:       zmin: 0 zmax: 0
+Geodetic CRS:  WGS 84</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>within_350m_preschool <span class="ot">&lt;-</span> <span class="fu">st_is_within_distance</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  HDBresale_sf, preschool, <span class="at">dist =</span> <span class="dv">350</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>HDBresale_sf <span class="ot">&lt;-</span> HDBresale_sf <span class="sc">%&gt;%</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">WITHIN_350M_PRESCHOOL =</span> <span class="fu">map_int</span>(within_350m_preschool, length))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>HDBresale_sf <span class="ot">&lt;-</span> HDBresale_sf <span class="sc">%&gt;%</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">PROX_PRESCHOOL =</span> <span class="fu">as.numeric</span>(</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">st_distance</span>(geometry,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                  preschool[<span class="fu">st_nearest_feature</span>(</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                    geometry, preschool), ], </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">by_element =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="eldercare" class="level3">
+<h3 class="anchored" data-anchor-id="eldercare">Eldercare</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>eldercare <span class="ot">=</span> <span class="fu">st_read</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"./data/EldercareServicesKML.kml"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs=</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `ELDERCARE' from data source 
+  `/Users/zishengwong/R Coding/ISSS626 Geospatial Analytics/Take Home Exercise/Take Home Exercise 3/data/EldercareServicesKML.kml' 
+  using driver `KML'
+Simple feature collection with 133 features and 2 fields
+Geometry type: POINT
+Dimension:     XYZ
+Bounding box:  xmin: 103.7119 ymin: 1.271472 xmax: 103.9561 ymax: 1.439561
+z_range:       zmin: 0 zmax: 0
+Geodetic CRS:  WGS 84</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>HDBresale_sf <span class="ot">&lt;-</span> HDBresale_sf <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">PROX_ELDERCARE =</span> <span class="fu">as.numeric</span>(</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">st_distance</span>(geometry,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                  eldercare[<span class="fu">st_nearest_feature</span>(</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                    geometry, eldercare), ], </span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">by_element =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="hawker-center" class="level3">
+<h3 class="anchored" data-anchor-id="hawker-center">Hawker center</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>hawkercenter <span class="ot">=</span> <span class="fu">st_read</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"./data/HawkerCentresKML.kml"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs=</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `HAWKERCENTRE' from data source 
+  `/Users/zishengwong/R Coding/ISSS626 Geospatial Analytics/Take Home Exercise/Take Home Exercise 3/data/HawkerCentresKML.kml' 
+  using driver `KML'
+Simple feature collection with 125 features and 2 fields
+Geometry type: POINT
+Dimension:     XYZ
+Bounding box:  xmin: 103.6974 ymin: 1.272716 xmax: 103.9882 ymax: 1.449017
+z_range:       zmin: 0 zmax: 0
+Geodetic CRS:  WGS 84</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>HDBresale_sf <span class="ot">&lt;-</span> HDBresale_sf <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">PROX_HAWKER =</span> <span class="fu">as.numeric</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">st_distance</span>(geometry,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                  hawkercenter[<span class="fu">st_nearest_feature</span>(</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                    geometry, hawkercenter), ], </span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">by_element =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="supermarkets" class="level3">
+<h3 class="anchored" data-anchor-id="supermarkets">SuperMarkets</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>supermarkets <span class="ot">=</span> <span class="fu">st_read</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"./data/SupermarketsKML.kml"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs=</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `SUPERMARKETS' from data source 
+  `/Users/zishengwong/R Coding/ISSS626 Geospatial Analytics/Take Home Exercise/Take Home Exercise 3/data/SupermarketsKML.kml' 
+  using driver `KML'
+Simple feature collection with 526 features and 2 fields
+Geometry type: POINT
+Dimension:     XYZ
+Bounding box:  xmin: 103.6258 ymin: 1.24715 xmax: 104.0036 ymax: 1.461526
+z_range:       zmin: 0 zmax: 0
+Geodetic CRS:  WGS 84</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>HDBresale_sf <span class="ot">&lt;-</span> HDBresale_sf <span class="sc">%&gt;%</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">PROX_SUPERMARKETS =</span> <span class="fu">as.numeric</span>(</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">st_distance</span>(geometry,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>                  supermarkets[<span class="fu">st_nearest_feature</span>(</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>                    geometry, supermarkets), ], </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">by_element =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="busstops" class="level3">
+<h3 class="anchored" data-anchor-id="busstops">Busstops</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>BusStop <span class="ot">=</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/LTADataMall/"</span>, </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">layer =</span> <span class="st">"BusStop"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `BusStop' from data source 
+  `/Users/zishengwong/R Coding/ISSS626 Geospatial Analytics/Take Home Exercise/Take Home Exercise 3/data/LTADataMall' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 5172 features and 2 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 3970.122 ymin: 26482.1 xmax: 48285.52 ymax: 52983.82
+Projected CRS: SVY21</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>within_350m_bus <span class="ot">&lt;-</span> <span class="fu">st_is_within_distance</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  HDBresale_sf, BusStop, <span class="at">dist =</span> <span class="dv">350</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>HDBresale_sf <span class="ot">&lt;-</span> HDBresale_sf <span class="sc">%&gt;%</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">WITHIN_350M_BUSSTOP =</span> <span class="fu">map_int</span>(within_350m_bus, length))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>HDBresale_sf <span class="ot">&lt;-</span> HDBresale_sf <span class="sc">%&gt;%</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">PROX_BUSSTOP =</span> <span class="fu">as.numeric</span>(</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">st_distance</span>(geometry,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                  BusStop[<span class="fu">st_nearest_feature</span>(</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>                    geometry, BusStop), ], </span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">by_element =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="train-station" class="level3">
+<h3 class="anchored" data-anchor-id="train-station">Train Station</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">OGR_GEOMETRY_ACCEPT_UNCLOSED_RING =</span> <span class="st">"NO"</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>TrainStation <span class="ot">&lt;-</span> <span class="fu">st_read</span>(</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">dsn =</span> <span class="st">"data/TrainStation/"</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">layer =</span> <span class="st">"RapidTransitSystemStation"</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `RapidTransitSystemStation' from data source 
+  `/Users/zishengwong/R Coding/ISSS626 Geospatial Analytics/Take Home Exercise/Take Home Exercise 3/data/TrainStation' 
+  using driver `ESRI Shapefile'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in CPL_read_ogr(dsn, layer, query, as.character(options), quiet, : GDAL
+Error 1: Non closed ring detected.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 231 features and 7 fields (with 1 geometry empty)
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 6068.209 ymin: 27478.44 xmax: 45377.5 ymax: 47913.58
+Projected CRS: SVY21</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>HDBresale_sf <span class="ot">&lt;-</span> HDBresale_sf <span class="sc">%&gt;%</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">PROX_TRAINSTATION =</span> <span class="fu">as.numeric</span>(</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">st_distance</span>(geometry,</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>                  TrainStation[<span class="fu">st_nearest_feature</span>(</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>                    geometry, TrainStation), ], </span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">by_element =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="primary-school" class="level3">
+<h3 class="anchored" data-anchor-id="primary-school">Primary School</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>PrimarySchool <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/Generalinformationofschools.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 337 Columns: 31
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (30): school_name, url_address, address, telephone_no, telephone_no_2, f...
+dbl  (1): postal_code
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>geocode_postal <span class="ot">&lt;-</span> <span class="cf">function</span>(postal_code) {</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  base_url <span class="ot">&lt;-</span> <span class="st">"https://www.onemap.gov.sg/api/common/elastic/search"</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  query <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">searchVal =</span> postal_code,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">returnGeom =</span> <span class="st">"Y"</span>,</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">getAddrDetails =</span> <span class="st">"N"</span>,</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">pageNum =</span> <span class="st">"1"</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">try</span>(httr<span class="sc">::</span><span class="fu">GET</span>(base_url, <span class="at">query =</span> query), <span class="at">silent =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">inherits</span>(res, <span class="st">"try-error"</span>)) <span class="fu">return</span>(<span class="fu">c</span>(<span class="cn">NA</span>, <span class="cn">NA</span>))</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>  restext <span class="ot">&lt;-</span> httr<span class="sc">::</span><span class="fu">content</span>(res, <span class="at">as =</span> <span class="st">"text"</span>, <span class="at">encoding =</span> <span class="st">"UTF-8"</span>)</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># parse JSON safely</span></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> <span class="fu">try</span>(jsonlite<span class="sc">::</span><span class="fu">fromJSON</span>(restext), <span class="at">silent =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">inherits</span>(output, <span class="st">"try-error"</span>)) <span class="fu">return</span>(<span class="fu">c</span>(<span class="cn">NA</span>, <span class="cn">NA</span>))</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check if results exist and are a list</span></span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(output<span class="sc">$</span>results) <span class="sc">&amp;&amp;</span> <span class="fu">length</span>(output<span class="sc">$</span>results) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>    first_result <span class="ot">&lt;-</span> output<span class="sc">$</span>results[[<span class="dv">1</span>]]</span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">is.list</span>(first_result) <span class="sc">&amp;&amp;</span> <span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"LATITUDE"</span>, <span class="st">"LONGITUDE"</span>) <span class="sc">%in%</span> <span class="fu">names</span>(first_result))) {</span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>      lat <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(first_result<span class="sc">$</span>LATITUDE)</span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>      lon <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(first_result<span class="sc">$</span>LONGITUDE)</span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(<span class="fu">c</span>(lat, lon))</span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># fallback if results missing or malformed</span></span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">c</span>(<span class="cn">NA</span>, <span class="cn">NA</span>))</span>
+<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>coords <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(PrimarySchool<span class="sc">$</span>postal_code, <span class="cf">function</span>(code) {</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">Sys.sleep</span>(<span class="fl">0.5</span>)  <span class="co"># polite delay to avoid rate limits</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  latlon <span class="ot">&lt;-</span> <span class="fu">geocode_postal</span>(code)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">LATITUDE =</span> latlon[<span class="dv">1</span>], <span class="at">LONGITUDE =</span> latlon[<span class="dv">2</span>])</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>PrimarySchool <span class="ot">&lt;-</span> <span class="fu">bind_cols</span>(PrimarySchool, coords)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>PrimarySchool_sf <span class="ot">&lt;-</span> PrimarySchool <span class="sc">%&gt;%</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(LATITUDE) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(LONGITUDE)) <span class="sc">%&gt;%</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"LONGITUDE"</span>, <span class="st">"LATITUDE"</span>), <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in min(cc[[1]], na.rm = TRUE): no non-missing arguments to min;
+returning Inf</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in min(cc[[2]], na.rm = TRUE): no non-missing arguments to min;
+returning Inf</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in max(cc[[1]], na.rm = TRUE): no non-missing arguments to max;
+returning -Inf</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in max(cc[[2]], na.rm = TRUE): no non-missing arguments to max;
+returning -Inf</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>HDBresale_sf <span class="ot">&lt;-</span> HDBresale_sf <span class="sc">%&gt;%</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">PROX_PRIMARYSCHOOL =</span> <span class="fu">as.numeric</span>(</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">st_distance</span>(</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>        geometry,</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>        PrimarySchool_sf[<span class="fu">st_nearest_feature</span>(geometry, PrimarySchool_sf), ],</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">by_element =</span> <span class="cn">TRUE</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Preprocess columns</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>HDBresale_sf <span class="ot">&lt;-</span> HDBresale_sf <span class="sc">%&gt;%</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">STOREY_MID =</span> <span class="fu">str_extract</span>(storey_range, <span class="st">"^</span><span class="sc">\\</span><span class="st">d+"</span>) <span class="sc">%&gt;%</span> <span class="fu">as.numeric</span>() <span class="sc">+</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>                 (<span class="fu">str_extract</span>(storey_range, <span class="st">"</span><span class="sc">\\</span><span class="st">d+$"</span>) <span class="sc">%&gt;%</span> <span class="fu">as.numeric</span>() <span class="sc">-</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">str_extract</span>(storey_range, <span class="st">"^</span><span class="sc">\\</span><span class="st">d+"</span>) <span class="sc">%&gt;%</span> <span class="fu">as.numeric</span>()) <span class="sc">/</span> <span class="dv">2</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>HDBresale_sf <span class="ot">&lt;-</span> HDBresale_sf <span class="sc">%&gt;%</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extract number of years</span></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">lease_years =</span> <span class="fu">str_extract</span>(remaining_lease, <span class="st">"</span><span class="sc">\\</span><span class="st">d+(?= years)"</span>) <span class="sc">%&gt;%</span> <span class="fu">as.numeric</span>() <span class="sc">%&gt;%</span> <span class="fu">replace_na</span>(<span class="dv">0</span>),</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extract number of months</span></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">lease_months =</span> <span class="fu">str_extract</span>(remaining_lease, <span class="st">"</span><span class="sc">\\</span><span class="st">d+(?= months)"</span>) <span class="sc">%&gt;%</span> <span class="fu">as.numeric</span>() <span class="sc">%&gt;%</span> <span class="fu">replace_na</span>(<span class="dv">0</span>),</span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute total months</span></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">remaining_lease_mths =</span> lease_years <span class="sc">*</span> <span class="dv">12</span> <span class="sc">+</span> lease_months</span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>lease_years, <span class="sc">-</span>lease_months)  <span class="co"># optional: drop intermediate columns</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>HDBresale_sf <span class="ot">&lt;-</span> HDBresale_sf <span class="sc">%&gt;%</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(PROX_PRESCHOOL,PROX_ELDERCARE, PROX_HAWKER, PROX_TRAINSTATION,</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>                  PROX_SUPERMARKETS,PROX_BUSSTOP,PROX_PRIMARYSCHOOL),</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>                <span class="sc">~</span> . <span class="sc">/</span> <span class="dv">1000</span>))  <span class="co"># convert meters to km</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(HDBresale_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    month               town            flat_type            block          
+ Length:27140       Length:27140       Length:27140       Length:27140      
+ Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                            
+                                                                            
+                                                                            
+                                                                            
+ street_name        storey_range       floor_area_sqm    flat_model       
+ Length:27140       Length:27140       Min.   : 31.00   Length:27140      
+ Class :character   Class :character   1st Qu.: 74.00   Class :character  
+ Mode  :character   Mode  :character   Median : 93.00   Mode  :character  
+                                       Mean   : 95.01                     
+                                       3rd Qu.:111.00                     
+                                       Max.   :366.70                     
+                                                                          
+ lease_commence_date remaining_lease     resale_price              geometry    
+ Min.   :1966        Length:27140       Min.   : 245000   POINT        :27140  
+ 1st Qu.:1985        Class :character   1st Qu.: 500000   epsg:3414    :    0  
+ Median :1998        Mode  :character   Median : 616888   +proj=tmer...:    0  
+ Mean   :1998                           Mean   : 637612                        
+ 3rd Qu.:2015                           3rd Qu.: 745000                        
+ Max.   :2021                           Max.   :1658888                        
+                                                                               
+ WITHIN_350M_PRESCHOOL PROX_PRESCHOOL      PROX_ELDERCARE    PROX_HAWKER      
+ Min.   : 0.000        Min.   :1.000e-08   Min.   :0.0000   Min.   :0.006981  
+ 1st Qu.: 3.000        1st Qu.:6.931e-02   1st Qu.:0.3197   1st Qu.:0.355422  
+ Median : 5.000        Median :1.112e-01   Median :0.6326   Median :0.634175  
+ Mean   : 5.395        Mean   :1.202e-01   Mean   :0.8071   Mean   :0.747174  
+ 3rd Qu.: 7.000        3rd Qu.:1.616e-01   3rd Qu.:1.1220   3rd Qu.:1.001135  
+ Max.   :25.000        Max.   :2.952e+00   Max.   :4.7808   Max.   :2.867630  
+                                                                              
+ PROX_SUPERMARKETS WITHIN_350M_BUSSTOP  PROX_BUSSTOP     PROX_TRAINSTATION 
+ Min.   :0.0000    Min.   : 0.000      Min.   :0.01543   Min.   :0.009112  
+ 1st Qu.:0.1818    1st Qu.: 6.000      1st Qu.:0.07410   1st Qu.:0.266236  
+ Median :0.2794    Median : 8.000      Median :0.10777   Median :0.470121  
+ Mean   :0.3063    Mean   : 7.938      Mean   :0.11415   Mean   :0.551007  
+ 3rd Qu.:0.3935    3rd Qu.:10.000      3rd Qu.:0.14566   3rd Qu.:0.752641  
+ Max.   :3.3254    Max.   :19.000      Max.   :0.37743   Max.   :3.446893  
+                                                                           
+ PROX_PRIMARYSCHOOL   STOREY_MID    remaining_lease_mths
+ Min.   : NA        Min.   : 2.00   Min.   : 480.0      
+ 1st Qu.: NA        1st Qu.: 5.00   1st Qu.: 716.0      
+ Median : NA        Median : 8.00   Median : 871.0      
+ Mean   :NaN        Mean   : 8.76   Mean   : 875.1      
+ 3rd Qu.: NA        3rd Qu.:11.00   3rd Qu.:1073.0      
+ Max.   : NA        Max.   :50.00   Max.   :1147.0      
+ NA's   :27140                                          </code></pre>
+</div>
+</div>
+<p>Primary school has entirely NaNs, we will remove it from analysis.</p>
+</section>
+</section>
+</section>
+<section id="correlation-analysis" class="level1">
+<h1>Correlation analysis</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>HDBresale_sf_copy <span class="ot">&lt;-</span> HDBresale_sf  <span class="co"># simple deep copy</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>numeric_cols <span class="ot">&lt;-</span> HDBresale_sf_copy <span class="sc">%&gt;%</span> <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.numeric)) <span class="sc">%&gt;%</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">where</span>(<span class="sc">~</span> <span class="sc">!</span><span class="fu">all</span>(<span class="fu">is.na</span>(.)) <span class="sc">&amp;</span> <span class="fu">var</span>(., <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">&gt;</span> <span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrplot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>corrplot 0.95 loaded</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot</span>(</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>(numeric_cols, <span class="at">use =</span> <span class="st">"pairwise.complete.obs"</span>),  <span class="co"># handle NA</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">diag =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">order =</span> <span class="st">"AOE"</span>,</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">tl.pos =</span> <span class="st">"td"</span>, </span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">tl.cex =</span> <span class="fl">0.5</span>, </span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">"number"</span>, </span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"upper"</span></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take_Home_Ex03_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>remaining_lease_mths and lease_commence_data have high collinearity. However we will only be using remaining_lease_mths hence it is not a problem.</p>
+<p>No other columns have high collinearlity, we will include all in analysis.</p>
+</section>
+<section id="gwr-method" class="level1">
+<h1>GWR method</h1>
+<section id="computing-adaptive-bandwidth" class="level2">
+<h2 class="anchored" data-anchor-id="computing-adaptive-bandwidth">Computing adaptive bandwidth</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>bw_adaptive <span class="ot">&lt;-</span> <span class="fu">bw.gwr</span>(</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> resale_price <span class="sc">~</span> floor_area_sqm <span class="sc">+</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>    STOREY_MID <span class="sc">+</span> remaining_lease_mths <span class="sc">+</span> PROX_ELDERCARE <span class="sc">+</span> PROX_HAWKER <span class="sc">+</span> PROX_PRESCHOOL <span class="sc">+</span> PROX_BUSSTOP<span class="sc">+</span> </span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>    PROX_TRAINSTATION <span class="sc">+</span> PROX_SUPERMARKETS <span class="sc">+</span> WITHIN_350M_BUSSTOP <span class="sc">+</span> WITHIN_350M_PRESCHOOL,</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data=</span>HDBresale_sf,</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">approach=</span><span class="st">"CV"</span>,</span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel=</span><span class="st">"gaussian"</span>,</span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">adaptive=</span><span class="cn">TRUE</span>,</span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">longlat=</span><span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Take a cup of tea and have a break, it will take a few minutes.
+          -----A kind suggestion from GWmodel development group
+Adaptive bandwidth: 16781 CV score: 2.507709e+14 
+Adaptive bandwidth: 10379 CV score: 2.267425e+14 
+Adaptive bandwidth: 6422 CV score: 1.941914e+14 
+Adaptive bandwidth: 3976 CV score: 1.543408e+14 
+Adaptive bandwidth: 2465 CV score: 1.226496e+14 
+Adaptive bandwidth: 1530 CV score: 1.028817e+14 
+Adaptive bandwidth: 953 CV score: 9.096898e+13 
+Adaptive bandwidth: 595 CV score: 7.954776e+13 
+Adaptive bandwidth: 375 CV score: 7.022264e+13 
+Adaptive bandwidth: 238 CV score: 6.325561e+13 
+Adaptive bandwidth: 154 CV score: 5.632266e+13 
+Adaptive bandwidth: 101 CV score: 5.027229e+13 
+Adaptive bandwidth: 69 CV score: 4.611989e+13 
+Adaptive bandwidth: 48 CV score: NaN 
+Adaptive bandwidth: 80 CV score: 4.767871e+13 
+Adaptive bandwidth: 60 CV score: 4.482915e+13 
+Adaptive bandwidth: 56 CV score: 4.432179e+13 
+Adaptive bandwidth: 52 CV score: NaN 
+Adaptive bandwidth: 57 CV score: 4.445572e+13 
+Adaptive bandwidth: 54 CV score: 4.410161e+13 
+Adaptive bandwidth: 54 CV score: 4.410161e+13 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(bw_adaptive, <span class="st">"data/model/bw_adaptive.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>bw_adaptive <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/model/bw_adaptive.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="constructing-adaptive-bandwidth-gwr-model" class="level2">
+<h2 class="anchored" data-anchor-id="constructing-adaptive-bandwidth-gwr-model">Constructing adaptive bandwidth gwr model</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>gwr_adaptive <span class="ot">&lt;-</span> <span class="fu">gwr.basic</span>(</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> resale_price <span class="sc">~</span> floor_area_sqm <span class="sc">+</span></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>    STOREY_MID <span class="sc">+</span> remaining_lease_mths <span class="sc">+</span> PROX_ELDERCARE <span class="sc">+</span> PROX_HAWKER <span class="sc">+</span> PROX_PRESCHOOL <span class="sc">+</span> PROX_BUSSTOP<span class="sc">+</span> </span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>    PROX_TRAINSTATION <span class="sc">+</span> PROX_SUPERMARKETS <span class="sc">+</span> WITHIN_350M_BUSSTOP <span class="sc">+</span> WITHIN_350M_PRESCHOOL,</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data=</span>HDBresale_sf,</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">bw=</span>bw_adaptive, </span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">'gaussian'</span>, </span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">adaptive=</span><span class="cn">TRUE</span>,</span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">longlat =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(gwr_adaptive, <span class="st">"data/model/gwr_adaptive.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>gwr_adaptive <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/model/gwr_adaptive.rds"</span>)</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>gwr_adaptive</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   ***********************************************************************
+   *                       Package   GWmodel                             *
+   ***********************************************************************
+   Program starts at: 2025-11-16 20:29:23.988363 
+   Call:
+   gwr.basic(formula = resale_price ~ floor_area_sqm + STOREY_MID + 
+    remaining_lease_mths + PROX_ELDERCARE + PROX_HAWKER + PROX_PRESCHOOL + 
+    PROX_BUSSTOP + PROX_TRAINSTATION + PROX_SUPERMARKETS + WITHIN_350M_BUSSTOP + 
+    WITHIN_350M_PRESCHOOL, data = HDBresale_sf, bw = bw_adaptive, 
+    kernel = "gaussian", adaptive = TRUE, longlat = FALSE)
+
+   Dependent (y) variable:  resale_price
+   Independent variables:  floor_area_sqm STOREY_MID remaining_lease_mths PROX_ELDERCARE PROX_HAWKER PROX_PRESCHOOL PROX_BUSSTOP PROX_TRAINSTATION PROX_SUPERMARKETS WITHIN_350M_BUSSTOP WITHIN_350M_PRESCHOOL
+   Number of data points: 27140
+   ***********************************************************************
+   *                    Results of Global Regression                     *
+   ***********************************************************************
+
+   Call:
+    lm(formula = formula, data = data)
+
+   Residuals:
+    Min      1Q  Median      3Q     Max 
+-530861  -67454  -13621   48619  638268 
+
+   Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)    
+   (Intercept)           -1.754e+05  4.991e+03 -35.145  &lt; 2e-16 ***
+   floor_area_sqm         5.924e+03  2.728e+01 217.174  &lt; 2e-16 ***
+   STOREY_MID             8.033e+03  1.121e+02  71.657  &lt; 2e-16 ***
+   remaining_lease_mths   3.745e+02  3.735e+00 100.272  &lt; 2e-16 ***
+   PROX_ELDERCARE        -4.278e+04  1.018e+03 -42.045  &lt; 2e-16 ***
+   PROX_HAWKER           -7.053e+04  1.323e+03 -53.312  &lt; 2e-16 ***
+   PROX_PRESCHOOL         4.219e+04  7.501e+03   5.624 1.88e-08 ***
+   PROX_BUSSTOP           2.242e+04  1.240e+04   1.808   0.0706 .  
+   PROX_TRAINSTATION     -5.748e+04  1.730e+03 -33.233  &lt; 2e-16 ***
+   PROX_SUPERMARKETS      1.553e+04  3.647e+03   4.257 2.08e-05 ***
+   WITHIN_350M_BUSSTOP   -3.828e+03  2.424e+02 -15.789  &lt; 2e-16 ***
+   WITHIN_350M_PRESCHOOL -2.055e+03  2.413e+02  -8.517  &lt; 2e-16 ***
+
+   ---Significance stars
+   Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+   Residual standard error: 103300 on 27128 degrees of freedom
+   Multiple R-squared: 0.7231
+   Adjusted R-squared: 0.723 
+   F-statistic:  6441 on 11 and 27128 DF,  p-value: &lt; 2.2e-16 
+   ***Extra Diagnostic information
+   Residual sum of squares: 2.893022e+14
+   Sigma(hat): 103249.3
+   AIC:  703701.2
+   AICc:  703701.2
+   BIC:  676800.7
+   ***********************************************************************
+   *          Results of Geographically Weighted Regression              *
+   ***********************************************************************
+
+   *********************Model calibration information*********************
+   Kernel function: gaussian 
+   Adaptive bandwidth: 54 (number of nearest neighbours)
+   Regression points: the same locations as observations are used.
+   Distance metric: Euclidean distance metric is used.
+
+   ****************Summary of GWR coefficient estimates:******************
+                                Min.     1st Qu.      Median     3rd Qu.
+   Intercept             -5.2374e+07 -4.7635e+05 -3.0231e+05 -1.3175e+05
+   floor_area_sqm         3.1511e+03  5.2235e+03  5.9668e+03  6.9349e+03
+   STOREY_MID             5.1025e+02  3.6065e+03  4.5304e+03  5.3680e+03
+   remaining_lease_mths  -4.5101e+03  2.6123e+02  4.1465e+02  5.9670e+02
+   PROX_ELDERCARE        -3.2510e+07 -4.8145e+04  1.2991e+03  5.6318e+04
+   PROX_HAWKER           -3.4608e+07 -6.5357e+04 -1.1072e+04  5.9969e+04
+   PROX_PRESCHOOL        -7.4087e+06 -6.9016e+04 -5.3579e+02  7.0239e+04
+   PROX_BUSSTOP          -6.3234e+07 -1.0218e+05 -1.6644e+04  6.4708e+04
+   PROX_TRAINSTATION     -2.8348e+08 -1.2821e+05 -7.0835e+04 -6.6444e+03
+   PROX_SUPERMARKETS     -3.9675e+06 -8.1318e+04 -2.1589e+04  4.1077e+04
+   WITHIN_350M_BUSSTOP   -2.6362e+04 -2.5442e+03  1.2616e+02  2.8882e+03
+   WITHIN_350M_PRESCHOOL -1.4072e+05 -2.3089e+03  6.6162e+02  3.3863e+03
+                               Max.
+   Intercept             7.4881e+06
+   floor_area_sqm        1.3616e+04
+   STOREY_MID            1.2611e+04
+   remaining_lease_mths  1.7031e+03
+   PROX_ELDERCARE        5.9095e+07
+   PROX_HAWKER           1.8757e+08
+   PROX_PRESCHOOL        1.9862e+07
+   PROX_BUSSTOP          4.0523e+06
+   PROX_TRAINSTATION     5.3070e+07
+   PROX_SUPERMARKETS     8.2365e+07
+   WITHIN_350M_BUSSTOP   2.1025e+05
+   WITHIN_350M_PRESCHOOL 1.5864e+06
+   ************************Diagnostic information*************************
+   Number of data points: 27140 
+   Effective number of parameters (2trace(S) - trace(S'S)): 2964.726 
+   Effective degrees of freedom (n-2trace(S) + trace(S'S)): 24175.27 
+   AICc (GWR book, Fotheringham, et al. 2002, p. 61, eq 2.33): 652124.8 
+   AIC (GWR book, Fotheringham, et al. 2002,GWR p. 96, eq. 4.22): 649372.1 
+   BIC (GWR book, Fotheringham, et al. 2002,GWR p. 61, eq. 2.34): 643572.4 
+   Residual sum of squares: 3.591783e+13 
+   R-square value:  0.9656254 
+   Adjusted R-square value:  0.9614097 
+
+   ***********************************************************************
+   Program stops at: 2025-11-16 20:33:14.483335 </code></pre>
+</div>
+</div>
+<p>Results above show R square value of 0.723, AIC of 703701 and F-statistic that indicates highly significant (p&lt;0.001). Overall the OLS model provides a strong baseline, explaining approximately 72% of price variation.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
